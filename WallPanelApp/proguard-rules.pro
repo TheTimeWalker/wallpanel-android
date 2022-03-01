@@ -15,3 +15,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keepclassmembernames class io.netty.** { *; }
+-keepclassmembers class org.jctools.** { *; }
