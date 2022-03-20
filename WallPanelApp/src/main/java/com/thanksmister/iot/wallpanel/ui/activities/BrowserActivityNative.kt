@@ -335,6 +335,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
         webSettings?.pluginState = WebSettings.PluginState.ON
         webSettings?.setRenderPriority(WebSettings.RenderPriority.HIGH);
        // webSettings?.cacheMode = WebSettings.LOAD_NO_CACHE;
+        webSettings?.mediaPlaybackRequiresUserGesture = false;
 
         if (userAgent.isNotEmpty()) {
             webSettings?.userAgentString = userAgent
