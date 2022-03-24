@@ -21,7 +21,6 @@ buildscript {
     repositories {
         google()
         gradlePluginPortal()
-        maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
         mavenCentral()
     }
     dependencies {
@@ -37,7 +36,6 @@ allprojects {
     repositories {
         google()
         gradlePluginPortal()
-        maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
         mavenCentral()
     }
 }

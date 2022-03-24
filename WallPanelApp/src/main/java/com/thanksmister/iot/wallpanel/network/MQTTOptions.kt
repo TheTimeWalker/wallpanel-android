@@ -16,7 +16,6 @@
 
 package com.thanksmister.iot.wallpanel.network
 
-
 import android.text.TextUtils
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.utils.MqttUtils.Companion.TOPIC_COMMAND

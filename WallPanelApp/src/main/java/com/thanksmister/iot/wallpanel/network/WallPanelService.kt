@@ -72,9 +72,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
-import java.net.URLDecoder
-import java.net.URLEncoder
-import java.net.URLEncoder.encode
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean

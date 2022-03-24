@@ -43,11 +43,13 @@
     <string name="key_setting_mqtt_servername">setting_mqtt_servername</string>
     <string name="default_setting_mqtt_servername">192.168.1.1</string>
     <string name="key_setting_mqtt_enabled">setting_mqtt_enabled</string>
+    <string name="key_setting_mqtt_version">setting_mqtt_version</string>
     <string name="key_setting_mqtt_discovery">setting_mqtt_discovery</string>
     <string name="key_setting_mqtt_discovery_topic">setting_mqtt_discovery_topic</string>
     <string name="key_setting_mqtt_discovery_name">setting_mqtt_discovery_name</string>
     <string name="key_setting_mqtt_tls_enabled">key_setting_mqtt_tls_enabled</string>
     <string name="default_setting_mqtt_enabled">false</string>
+    <string name="default_setting_mqtt_version">5.0</string>
     <string name="default_setting_mqtt_home_assistant_discovery">false</string>
     <string name="default_setting_mqtt_discovery_topic">homeassistant</string>
     <string name="default_setting_mqtt_tts_enabled">false</string>
@@ -285,6 +287,16 @@
         <item>75</item>
         <item>90</item>
         <item>99</item>
+    </string-array>
+
+    <string-array name="mqtt_version_title">
+        <item>MQTT 5.0</item>
+        <item>MQTT 3.1.1 (unsupported)</item>
+    </string-array>
+
+    <string-array name="mqtt_version_values">
+        <item>5.0</item>
+        <item>3.1.1</item>
     </string-array>
 
 </resources>

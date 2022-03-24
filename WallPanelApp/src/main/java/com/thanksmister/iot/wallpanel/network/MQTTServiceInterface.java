@@ -18,7 +18,7 @@ package com.thanksmister.iot.wallpanel.network;
 
 import android.content.Context;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
+import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5MessageException;
 
 public interface MQTTServiceInterface {
 
@@ -28,5 +28,5 @@ public interface MQTTServiceInterface {
 
     void reconfigure(Context context, MQTTOptions options, MQTTService.MqttManagerListener listener);
     
-    void close() throws MqttException;
+    void close() throws Mqtt5MessageException;
 }

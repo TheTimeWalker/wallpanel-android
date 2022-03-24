@@ -64,6 +64,7 @@
     <string name="title_setting_mqtt_enabled">Enabled MQTT Client</string>
     <string name="title_setting_mqtt_servername">MQTT Broker Address</string>
     <string name="title_setting_mqtt_serverport">Broker Port Number</string>
+    <string name="title_setting_mqtt_version">MQTT Version</string>
     <string name="title_setting_mqtt_basetopic">Base Topic</string>
     <string name="title_setting_mqtt_clientid">Client ID</string>
     <string name="title_setting_mqtt_username">Username (Optional)</string>
@@ -128,6 +129,7 @@
     <string name="pref_sensor_list_summary">Below is a list of sensor data available on this device to be published as MQTT data.</string>
     <string name="pref_qr_code_summary">When active, will scan QR codes and publish the scanned code over MQTT.</string>
     <string name="pref_mqtt_settings_title">MQTT Settings</string>
+    <string name="pref_mqtt_version_summary" formatted="false">Use MQTT %1$s to connect to broker.</string>
     <string name="pref_motion_detection_summary">Detects motion using the device\'s camera.</string>
     <string name="pref_motion_wake_summary">Wakes the device screen when motion detected.</string>
     <string name="pref_camera_bright_summary">Increases the screen brightness when motion or face detected.</string>

@@ -78,7 +78,6 @@
             android:name=".ui.activities.SettingsActivity"
             android:label="@string/title_settings" />
 
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
         <service
             android:name=".network.WallPanelService"
             android:enabled="true"

@@ -39,6 +39,12 @@
             android:textColor="@color/light_gray"
             android:textSize="12sp"/>
 
+        <ListPreference
+            android:entries="@array/mqtt_version_title"
+            android:entryValues="@array/mqtt_version_values"
+            android:key="pref_mqtt_version"
+            android:summary="@string/pref_mqtt_version_summary"
+            android:title="@string/title_setting_mqtt_version" />
         <SwitchPreference
             android:key="pref_tls_connection"
             android:summary="@string/preference_summary_tls_connection"

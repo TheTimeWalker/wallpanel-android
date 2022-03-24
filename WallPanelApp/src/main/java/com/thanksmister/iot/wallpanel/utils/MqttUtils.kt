@@ -16,13 +16,10 @@
 
 package com.thanksmister.iot.wallpanel.utils
 
-import android.content.Context
 import android.text.TextUtils
+import com.hivemq.client.mqtt.MqttClient
+import com.hivemq.client.mqtt.MqttClientBuilder
 import com.thanksmister.iot.wallpanel.network.MQTTService
-import org.eclipse.paho.android.service.MqttAndroidClient
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import timber.log.Timber
 import java.nio.charset.Charset
 import java.util.*
@@ -67,45 +64,12 @@ class MqttUtils {
             topicsList.add(TOPIC_COMMAND)
         }
 
-        val mqttConnectOptions: MqttConnectOptions
-            get() {
-                val mqttConnectOptions = MqttConnectOptions()
-                mqttConnectOptions.isAutomaticReconnect = true
-                mqttConnectOptions.isCleanSession = false
-                return mqttConnectOptions
-            }
-
-        fun getMqttConnectOptions(username: String, password: String): MqttConnectOptions {
-            val mqttConnectOptions = MqttConnectOptions()
-            mqttConnectOptions.isAutomaticReconnect = true
-            mqttConnectOptions.isCleanSession = false
-
-            if (!TextUtils.isEmpty(username)) {
-                mqttConnectOptions.userName = username
-            }
-
-            if (!TextUtils.isEmpty(password)) {
-                val passwordArray = password.toCharArray()
-                mqttConnectOptions.password = passwordArray
-            }
-
-            return mqttConnectOptions
-        }
-
-        @Deprecated ("We don't need a callback for the client.")
-        fun getMqttAndroidClient(context: Context, serverUri: String, clientId: String,
-                                 mqttCallbackExtended: MqttCallbackExtended): MqttAndroidClient {
-            val mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
-            mqttAndroidClient.setCallback(mqttCallbackExtended)
-            return mqttAndroidClient
-        }
-
         /**
          * We need to make an array of listeners to pass to the subscribe topics.
          * @param length
          * @return
          */
-        fun getMqttMessageListeners(length: Int, listener: MQTTService.MqttManagerListener?): Array<IMqttMessageListener?> {
+        /*fun getMqttMessageListeners(length: Int, listener: MQTTService.MqttManagerListener?): Array<IMqttMessageListener?> {
             val mqttMessageListeners = arrayOfNulls<IMqttMessageListener>(length)
             for (i in 0 until length) {
                 val mqttMessageListener = IMqttMessageListener { topic, message ->
@@ -117,7 +81,7 @@ class MqttUtils {
                 mqttMessageListeners[i] = mqttMessageListener
             }
             return mqttMessageListeners
-        }
+        }*/
 
         /**
          * Generate an array of QOS values for subscribing to multiple topics.

@@ -19,7 +19,7 @@ apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 
@@ -182,11 +182,6 @@ dependencies {
     implementation 'com.koushikdutta.async:androidasync:2.1.9'
     implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.4'
     implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4'
-
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
-
-    implementation 'com.koushikdutta.async:androidasync:2.1.9'
 
     // Logging
     implementation 'com.jakewharton.timber:timber:4.5.1'

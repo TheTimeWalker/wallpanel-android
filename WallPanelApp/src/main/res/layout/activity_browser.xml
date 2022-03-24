@@ -33,9 +33,9 @@
             android:windowSoftInputMode="adjustResize">
 
             <WebView
+                android:id="@+id/activity_browser_webview_native"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/activity_browser_webview_native"
                 android:scrollbars="none" />
 
             <ProgressBar

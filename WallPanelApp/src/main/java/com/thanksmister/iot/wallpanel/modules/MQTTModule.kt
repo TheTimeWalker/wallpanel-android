@@ -16,26 +16,32 @@
 
 package com.thanksmister.iot.wallpanel.modules
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.lifecycle.*
+import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5MessageException
 import com.thanksmister.iot.wallpanel.network.MQTTOptions
 import com.thanksmister.iot.wallpanel.network.MQTTService
 
-import org.eclipse.paho.client.mqttv3.MqttException
 import timber.log.Timber
 
 class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val listener: MQTTListener) : ContextWrapper(base),
         LifecycleObserver,
-        MQTTService.MqttManagerListener {
+        MQTTService.MqttManagerListener, DefaultLifecycleObserver {
 
     private var mqttService: MQTTService? = null
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    private fun start() {
+    override fun onStart(owner: LifecycleOwner) {
         Timber.d("start")
+        startMqtt()
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        Timber.d("stop")
+        stopMqtt()
+    }
+
+    private fun startMqtt() {
         if (mqttService == null) {
             try {
                 mqttService = MQTTService(applicationContext, mqttOptions, this)
@@ -53,13 +59,11 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    private fun stop() {
-        Timber.d("stop")
+    private fun stopMqtt() {
         mqttService?.let {
             try {
                 it.close()
-            } catch (e: MqttException) {
+            } catch (e: Mqtt5MessageException) {
                 e.printStackTrace()
             }
             mqttService = null
@@ -68,24 +72,24 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
 
     fun restart() {
         Timber.d("restart")
-        stop()
-        start()
+        stopMqtt()
+        startMqtt()
     }
 
     fun pause() {
         Timber.d("pause")
-        stop()
+        stopMqtt()
     }
 
     fun publish(topic: String, message : String, retain: Boolean) {
-        Timber.d("topic: " + topic)
-        Timber.d("message: " + message)
+        Timber.d("topic: $topic")
+        Timber.d("message: $message")
         Timber.d("retain: $retain")
         mqttService?.publish(topic, message, retain)
     }
 
     override fun subscriptionMessage(id: String, topic: String, payload: String) {
-        Timber.d("topic: " + topic)
+        Timber.d("topic: $topic")
         listener.onMQTTMessage(id, topic, payload)
     }
 

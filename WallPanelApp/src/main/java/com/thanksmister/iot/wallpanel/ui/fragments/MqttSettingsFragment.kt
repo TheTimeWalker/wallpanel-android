@@ -24,6 +24,7 @@ import android.view.*
 import androidx.preference.SwitchPreference
 import androidx.preference.EditTextPreference
 import androidx.navigation.Navigation
+import androidx.preference.ListPreference
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.MQTTOptions
 import com.thanksmister.iot.wallpanel.persistence.Configuration
@@ -37,6 +38,7 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
     lateinit var mqttOptions: MQTTOptions
 
     private var mqttPreference: SwitchPreference? = null
+    private var mqttVersion: ListPreference? = null
     private var mqttBrokerAddress: EditTextPreference? = null
     private var mqttBrokerPort: EditTextPreference? = null
     private var mqttClientId: EditTextPreference? = null
@@ -92,6 +94,7 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
         super.onViewCreated(view, savedInstanceState)
 
         mqttPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_enabled)) as SwitchPreference
+        mqttVersion = findPreference<ListPreference>(PREF_MQTT_VERSION) as ListPreference
         mqttBrokerAddress = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_servername)) as EditTextPreference
         mqttBrokerPort = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_serverport)) as EditTextPreference
         mqttClientId = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_clientid)) as EditTextPreference
@@ -117,6 +120,11 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
         bindPreferenceSummaryToValue(mqttDiscovery!!)
         bindPreferenceSummaryToValue(mqttDiscoveryTopic!!)
         bindPreferenceSummaryToValue(mqttDiscoveryDeviceName!!)
+
+        mqttVersion?.setDefaultValue(configuration.mqttVersion)
+        mqttVersion?.value = configuration.mqttVersion
+        mqttVersion?.summary = getString(R.string.pref_mqtt_version_summary, configuration.mqttVersion)
+
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -125,10 +133,14 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
                 val checked = sslPreference.isChecked
                 mqttOptions.setTlsConnection(checked)
             }
+            PREF_MQTT_VERSION -> {
+                //TODO: Version changer
+            }
         }
     }
 
     companion object {
         const val PREF_TLS_CONNECTION = "pref_tls_connection"
+        const val PREF_MQTT_VERSION = "pref_mqtt_version"
     }
 }

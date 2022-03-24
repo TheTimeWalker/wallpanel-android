@@ -22,11 +22,14 @@ import android.text.TextUtils
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttGlobalPublishFilter
 import com.hivemq.client.mqtt.datatypes.MqttQos
+import com.hivemq.client.mqtt.lifecycle.MqttClientAutoReconnect
 import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedContext
 import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext
 import com.hivemq.client.mqtt.mqtt3.exceptions.Mqtt3DisconnectException
 import com.hivemq.client.mqtt.mqtt3.message.disconnect.Mqtt3Disconnect
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
+import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5AuthException
+import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5ConnAckException
 import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5DisconnectException
 import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5MessageException
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5Disconnect
@@ -34,7 +37,6 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import com.hivemq.client.util.TypeSwitch
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.utils.StringUtils
-import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
 import java.io.IOException
 import java.security.GeneralSecurityException
@@ -61,7 +63,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                              listener: MqttManagerListener) {
         try {
             close()
-        } catch (e: MqttException) {
+        } catch (e: Mqtt5MessageException) {
             // empty
         }
         this.listener = listener
@@ -107,7 +109,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         // it again.
                         try {
                             initializeMqttClient()
-                        } catch (e: MqttException) {
+                        } catch (e: Mqtt5MessageException) {
                             if (listener != null) {
                                 listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
                             }
@@ -127,7 +129,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     sendMessage(mqttMessage)
                 }
             }
-        } catch (e: MqttException) {
+        } catch (e: Mqtt5MessageException) {
             listener?.handleMqttException("Exception while publishing command $topic and it's payload to the MQTT broker.")
         }
     }
@@ -158,7 +160,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     }
                 }
             }
-        } catch (e: MqttException) {
+        } catch (e: Mqtt5MessageException) {
             listener?.handleMqttException(context.getString(R.string.error_mqtt_connection))
         } catch (e: IOException) {
             listener?.handleMqttException(context.getString(R.string.error_mqtt_connection))
@@ -168,7 +170,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     }
 
     @SuppressLint("NewApi")
-    @Throws(MqttException::class, IOException::class, NoSuchAlgorithmException::class, InvalidKeySpecException::class)
+    @Throws(Mqtt5MessageException::class, IOException::class, NoSuchAlgorithmException::class, InvalidKeySpecException::class)
     private fun initializeMqttClient() {
         Timber.d("initializeMqttClient")
         try {
@@ -210,7 +212,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         })
 
                 }
-//                mqttBuilder.automaticReconnect(true)
+//                mqttBuilder.automaticReconnect()
 
                 mqttClient = mqttBuilder.useMqttVersion5().build().toAsync()
                 val clientConnect = mqttClient!!.connectWith()
@@ -221,24 +223,22 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     clientConnect.simpleAuth().username(mqttOptions.getUsername()).password(mqttOptions.getPassword().toByteArray()).applySimpleAuth()
                 }
                 val isConnected = clientConnect.send()
-                val options = MqttConnectOptions()
-                options.isAutomaticReconnect = true
-                options.isCleanSession = false
-                options.setWill("${mqttOptions.getBaseTopic()}${CONNECTION}", OFFLINE.toByteArray(), 0, true)
-                if (!TextUtils.isEmpty(mqttOptions.getUsername()) && !TextUtils.isEmpty(mqttOptions.getPassword())) {
-                    options.userName = mqttOptions.getUsername()
-                    options.password = mqttOptions.getPassword().toCharArray()
-                }
-                /*if (isConnected.isSessionPresent) {
+                if (isConnected.isDone) {
                     mReady.set(true)
                     return
-                }*/
+                }
             }
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
         } catch (e: NullPointerException) {
             e.printStackTrace()
-        } catch (e: Exception) {
+        }  catch (e: Mqtt5AuthException) {
+            e.printStackTrace()
+            listener?.handleMqttException("Failed to authenticate: " + e.message)
+        } catch (e: Mqtt5ConnAckException) {
+            e.printStackTrace()
+            listener?.handleMqttException("Failed to connect: " + e.message)
+        } catch (e: Mqtt5MessageException) {
             e.printStackTrace()
             listener?.handleMqttException("" + e.message)
         }
@@ -254,7 +254,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                     Timber.d("Command Topic: ${mqttMessage.topic} Payload: ${mqttMessage.payload}")
                 } catch (e: NullPointerException) {
                     Timber.e(e.message)
-                } catch (e: MqttException) {
+                } catch (e: Mqtt5MessageException) {
                     Timber.e("Error Sending Command: " + e.message)
                     e.printStackTrace()
                     listener?.handleMqttException("Couldn't send message to the MQTT broker for topic ${mqttMessage.topic}, check the MQTT client settings or your connection to the broker.")
@@ -276,7 +276,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                 } catch (e: NullPointerException) {
                     e.printStackTrace()
                     Timber.e(e.message)
-                } catch (e: MqttException) {
+                } catch (e: Mqtt5MessageException) {
                     e.printStackTrace()
                     listener?.handleMqttException("Exception while subscribing: " + e.message)
                 }
@@ -285,8 +285,6 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     }
 
     companion object {
-        private val SHOULD_RETAIN = false
-        private val MQTT_QOS = 0
         private val ONLINE = "online"
         private val OFFLINE = "offline"
         private val CONNECTION = "connection"
