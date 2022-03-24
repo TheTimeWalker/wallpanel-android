@@ -27,12 +27,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.databinding.FragmentAboutBinding
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 
-import kotlinx.android.synthetic.main.fragment_about.*
 import timber.log.Timber
 
 class AboutFragment : Fragment() {
+
+    private var _binding: FragmentAboutBinding? = null
+    private val binding get() = _binding!!
 
     private var versionNumber: String? = null
 
@@ -42,7 +45,13 @@ class AboutFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_about, container, false)
+        _binding = FragmentAboutBinding.inflate(inflater, container, false);
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -68,17 +77,17 @@ class AboutFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         try {
-            val packageInfo = activity!!.packageManager.getPackageInfo(activity!!.packageName, 0)
+            val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
             versionNumber = " v" + packageInfo.versionName
-            versionName.text = versionNumber
+            binding.versionName.text = versionNumber
         } catch (e: PackageManager.NameNotFoundException) {
             Timber.e(e.message)
         }
 
-        sendFeedbackButton.setOnClickListener { feedback() }
-        rateApplicationButton.setOnClickListener { rate() }
-        githubButton.setOnClickListener { showGitHub() }
-        supportButton.setOnClickListener { showSupport() }
+        binding.sendFeedbackButton.setOnClickListener { feedback() }
+        binding.rateApplicationButton.setOnClickListener { rate() }
+        binding.githubButton.setOnClickListener { showGitHub() }
+        binding.supportButton.setOnClickListener { showSupport() }
     }
 
     private fun rate() {
@@ -98,11 +107,11 @@ class AboutFragment : Fragment() {
     }
 
     private fun feedback() {
-        val Email = Intent(Intent.ACTION_SENDTO)
-        Email.type = "text/email"
-        Email.data = Uri.parse("mailto:" + EMAIL_ADDRESS)
-        Email.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.mail_to_subject_text) + " " + versionNumber)
-        startActivity(Intent.createChooser(Email, getString(R.string.mail_subject_text)))
+        val email = Intent(Intent.ACTION_SENDTO)
+        email.type = "text/email"
+        email.data = Uri.parse("mailto:" + EMAIL_ADDRESS)
+        email.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.mail_to_subject_text) + " " + versionNumber)
+        startActivity(Intent.createChooser(email, getString(R.string.mail_subject_text)))
     }
 
     companion object {
