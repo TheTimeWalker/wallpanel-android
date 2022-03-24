@@ -25,7 +25,7 @@ public class AggregateLumaMotionDetection implements IMotionDetection {
 
     // Specific settings
     private int mLeniency = 20; // Difference of aggregate map of
-    // luma values
+                                             // luma values
     private static final int mDebugMode = 2; // State based debug
     private static final int mXBoxes = 10; // State based debug
     private static final int mYBoxes = 10; // State based debug
@@ -73,15 +73,12 @@ public class AggregateLumaMotionDetection implements IMotionDetection {
     public boolean detect(int[] luma, int width, int height) {
         if (luma == null) throw new NullPointerException();
 
-        //int[] original = luma.clone();
+        int[] original = luma.clone();
 
         // Create the "mPrevious" picture, the one that will be used to check
         // the next frame against.
         if (mPrevious == null) {
-            mPrevious = new int[luma.length];
-            System.arraycopy(luma, 0, mPrevious, 0, luma.length);
-
-            //mPrevious = original;
+            mPrevious = original;
             mPreviousWidth = width;
             mPreviousHeight = height;
             // Log.i(TAG, "Creating background image");
@@ -93,8 +90,7 @@ public class AggregateLumaMotionDetection implements IMotionDetection {
         // Log.d(TAG, "Detection "+(aDetection-bDetection));
 
         // Replace the current image with the previous.
-        //mPrevious = original;
-        System.arraycopy(luma, 0, mPrevious, 0, luma.length);
+        mPrevious = original;
         mPreviousWidth = width;
         mPreviousHeight = height;
 
@@ -103,10 +99,5 @@ public class AggregateLumaMotionDetection implements IMotionDetection {
 
     public void setLeniency(int l) {
         mLeniency = l;
-    }
-
-    public void clear(){
-        mPrevious = null;
-        mPreviousState = null;
     }
 }

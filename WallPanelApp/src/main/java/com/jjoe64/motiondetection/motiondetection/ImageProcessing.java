@@ -35,8 +35,6 @@ public abstract class ImageProcessing {
     public static final int S = 1;
     public static final int L = 2;
 
-    static int[] hsl = null;
-
     private ImageProcessing() {
     }
 
@@ -122,8 +120,7 @@ public abstract class ImageProcessing {
         if (yuv420sp == null) throw new NullPointerException();
 
         final int frameSize = width * height;
-        if(hsl == null)
-            hsl = new int[frameSize];
+        int[] hsl = new int[frameSize];
 
         for (int j = 0, yp = 0; j < height; j++) {
             for (int i = 0; i < width; i++, yp++) {

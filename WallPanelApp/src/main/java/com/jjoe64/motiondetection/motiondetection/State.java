@@ -21,7 +21,6 @@ public class State {
     private int[] map = null;
     private int width;
     private int height;
-    @SuppressWarnings("FieldCanBeLocal")
     private int average;
 
     public State(int[] data, int width, int height) {
