@@ -22,7 +22,6 @@ import android.text.TextUtils
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttGlobalPublishFilter
 import com.hivemq.client.mqtt.datatypes.MqttQos
-import com.hivemq.client.mqtt.lifecycle.MqttClientAutoReconnect
 import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedContext
 import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext
 import com.hivemq.client.mqtt.mqtt3.exceptions.Mqtt3DisconnectException
@@ -47,10 +46,10 @@ import java.util.function.Consumer
 import kotlin.text.Charsets.UTF_8
 
 
-class MQTTService(private var context: Context, options: MQTTOptions,
-                  private var listener: MqttManagerListener?) : MQTTServiceInterface {
+class MQTT5Service(private var context: Context, options: MQTTOptions,
+                   private var listener: IMqttManagerListener?) : MQTTServiceInterface {
 
-    private var mqttClient: Mqtt5AsyncClient? = null
+    private var mqtt5AsyncClient: Mqtt5AsyncClient? = null
     private var mqttOptions: MQTTOptions? = null
     private val mReady = AtomicBoolean(false)
 
@@ -60,7 +59,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
 
     override fun reconfigure(context: Context,
                              newOptions: MQTTOptions,
-                             listener: MqttManagerListener) {
+                             listener: IMqttManagerListener) {
         try {
             close()
         } catch (e: Mqtt5MessageException) {
@@ -71,13 +70,6 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         initialize(newOptions)
     }
 
-    interface MqttManagerListener {
-        fun subscriptionMessage(id: String, topic: String, payload: String)
-        fun handleMqttException(errorMessage: String)
-        fun handleMqttDisconnected()
-        fun handleMqttConnected()
-    }
-
     override fun isReady(): Boolean {
         return mReady.get()
     }
@@ -86,14 +78,14 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     override fun close() {
         Timber.d("close")
 
-        mqttClient?.let {
+        mqtt5AsyncClient?.let {
 
             mqttOptions?.let {
                 val offlineMessage = Mqtt5Publish.builder().topic("${it.getBaseTopic()}${CONNECTION}").payload(OFFLINE.toByteArray()).retain(true).build()
                 sendMessage(offlineMessage)
             }
 
-            mqttClient = null
+            mqtt5AsyncClient = null
             listener = null
             mqttOptions = null
         }
@@ -103,7 +95,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     override fun publish(topic: String, payload: String, retain: Boolean) {
         try {
             if (isReady) {
-                mqttClient?.let {
+                mqtt5AsyncClient?.let {
                     if (!it.state.isConnected) {
                         // if for some reason the mqtt client has disconnected, we should try to connect
                         // it again.
@@ -176,7 +168,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
         try {
             mqttOptions?.let { mqttOptions ->
 
-                val mqttBuilder = MqttClient.builder().identifier(mqttOptions.getClientId()).serverHost("192.168.1.2").serverPort(1883);
+                val mqttBuilder = MqttClient.builder().identifier(mqttOptions.getClientId()).serverHost("192.168.1.2").serverPort(1883)
                 mqttBuilder.addConnectedListener { context: MqttClientConnectedContext? ->
                     Timber.d("connect to broker completed")
                     subscribeToTopics(mqttOptions.getStateTopics())
@@ -212,10 +204,9 @@ class MQTTService(private var context: Context, options: MQTTOptions,
                         })
 
                 }
-//                mqttBuilder.automaticReconnect()
 
-                mqttClient = mqttBuilder.useMqttVersion5().build().toAsync()
-                val clientConnect = mqttClient!!.connectWith()
+                mqtt5AsyncClient = mqttBuilder.useMqttVersion5().build().toAsync()
+                val clientConnect = mqtt5AsyncClient!!.connectWith()
                 clientConnect.cleanStart(false)
                 clientConnect.willPublish().topic("${mqttOptions.getBaseTopic()}${CONNECTION}").payload(OFFLINE.toByteArray()).qos(
                     MqttQos.EXACTLY_ONCE).retain(true).applyWillPublish()
@@ -247,7 +238,7 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     @Throws(Mqtt5MessageException::class)
     private fun sendMessage(mqttMessage: Mqtt5Publish) {
         Timber.d("sendMessage")
-        mqttClient?.let {
+        mqtt5AsyncClient?.let {
             if (it.state.isConnected) {
                 try {
                     it.publish(mqttMessage)
@@ -266,11 +257,10 @@ class MQTTService(private var context: Context, options: MQTTOptions,
     private fun subscribeToTopics(topicFilters: Array<String>?) {
         topicFilters?.let {
             Timber.d("Subscribe to Topics: " + StringUtils.convertArrayToString(topicFilters))
-            mqttClient?.let {
+            mqtt5AsyncClient?.let {
                 try {
                     it.subscribeWith().topicFilter(StringUtils.convertArrayToString(topicFilters)).send()
                     it.publishes(MqttGlobalPublishFilter.ALL) { publish ->
-                        val test = publish.payload.get()
                         listener?.subscriptionMessage(it.config.clientIdentifier.get().toString(), publish.topic.toString(), UTF_8.decode(publish.payload.get()).toString())
                     }
                 } catch (e: NullPointerException) {

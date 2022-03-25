@@ -26,7 +26,7 @@ public interface MQTTServiceInterface {
 
     void publish(String topic, String payload, boolean retain);
 
-    void reconfigure(Context context, MQTTOptions options, MQTTService.MqttManagerListener listener);
-    
+    void reconfigure(Context context, MQTTOptions options, IMqttManagerListener listener);
+
     void close() throws Mqtt5MessageException;
 }

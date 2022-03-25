@@ -51,6 +51,10 @@ constructor(private val configuration: Configuration) {
                 !TextUtils.isEmpty(getClientId()) &&
                 configuration.mqttEnabled
 
+    fun getVersion(): String {
+        return configuration.mqttVersion
+    }
+
     fun getBroker(): String {
         return configuration.mqttBroker
     }

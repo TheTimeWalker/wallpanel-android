@@ -27,7 +27,6 @@ import androidx.navigation.Navigation
 import androidx.preference.ListPreference
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.network.MQTTOptions
-import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.activities.SettingsActivity
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -134,7 +133,11 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
                 mqttOptions.setTlsConnection(checked)
             }
             PREF_MQTT_VERSION -> {
-                //TODO: Version changer
+                val version = mqttVersion?.value
+                if (version != null) {
+                    configuration.mqttVersion = version
+                    mqttVersion?.summary = getString(R.string.pref_mqtt_version_summary, version)
+                }
             }
         }
     }

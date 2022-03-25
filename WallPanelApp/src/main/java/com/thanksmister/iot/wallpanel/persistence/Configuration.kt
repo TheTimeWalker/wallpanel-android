@@ -190,8 +190,11 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val mqttEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_mqtt_enabled, R.string.default_setting_mqtt_enabled)
 
-    val mqttVersion: String
+    var mqttVersion: String
         get() = getStringPref(R.string.key_setting_mqtt_version, R.string.default_setting_mqtt_version)
+        set(value) {
+            sharedPreferences.edit().putString(context.getString(R.string.key_setting_mqtt_version), value).apply()
+        }
 
     var mqttTlsEnabled: Boolean
         get() = sharedPreferences.getBoolean(context.getString(R.string.key_setting_mqtt_tls_enabled), false)

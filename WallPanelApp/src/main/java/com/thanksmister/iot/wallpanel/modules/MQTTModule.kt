@@ -19,17 +19,21 @@ package com.thanksmister.iot.wallpanel.modules
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.lifecycle.*
+import com.hivemq.client.mqtt.mqtt3.exceptions.Mqtt3MessageException
 import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5MessageException
+import com.thanksmister.iot.wallpanel.network.IMqttManagerListener
+import com.thanksmister.iot.wallpanel.network.MQTT3Service
 import com.thanksmister.iot.wallpanel.network.MQTTOptions
-import com.thanksmister.iot.wallpanel.network.MQTTService
+import com.thanksmister.iot.wallpanel.network.MQTT5Service
 
 import timber.log.Timber
 
 class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val listener: MQTTListener) : ContextWrapper(base),
         LifecycleObserver,
-        MQTTService.MqttManagerListener, DefaultLifecycleObserver {
+        IMqttManagerListener, DefaultLifecycleObserver {
 
-    private var mqttService: MQTTService? = null
+    private var mqtt3Service: MQTT3Service? = null
+    private var mqtt5Service: MQTT5Service? = null
 
     override fun onStart(owner: LifecycleOwner) {
         Timber.d("start")
@@ -42,31 +46,57 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
     }
 
     private fun startMqtt() {
-        if (mqttService == null) {
-            try {
-                mqttService = MQTTService(applicationContext, mqttOptions, this)
-            } catch (t: Throwable) {
-                // TODO should we loop back and try again?
-                Timber.e("Could not create MQTTPublisher: " + t.message)
+        if (mqttOptions.getVersion() == "3.1.1") {
+            if (mqtt3Service == null) {
+                try {
+                    mqtt3Service = MQTT3Service(applicationContext, mqttOptions, this)
+                } catch (t: Throwable) {
+                    // TODO should we loop back and try again?
+                    Timber.e("Could not create MQTTPublisher: " + t.message)
+                }
+            } else {
+                try {
+                    mqtt3Service?.reconfigure(applicationContext, mqttOptions, this)
+                } catch (t: Throwable) {
+                    // TODO should we loop back and try again?
+                    Timber.e("Could not create MQTTPublisher: " + t.message)
+                }
             }
         } else {
-            try {
-                mqttService?.reconfigure(applicationContext, mqttOptions, this)
-            } catch (t: Throwable) {
-                // TODO should we loop back and try again?
-                Timber.e("Could not create MQTTPublisher: " + t.message)
+            if (mqtt5Service == null) {
+                try {
+                    mqtt5Service = MQTT5Service(applicationContext, mqttOptions, this)
+                } catch (t: Throwable) {
+                    // TODO should we loop back and try again?
+                    Timber.e("Could not create MQTTPublisher: " + t.message)
+                }
+            } else {
+                try {
+                    mqtt5Service?.reconfigure(applicationContext, mqttOptions, this)
+                } catch (t: Throwable) {
+                    // TODO should we loop back and try again?
+                    Timber.e("Could not create MQTTPublisher: " + t.message)
+                }
             }
         }
     }
 
     private fun stopMqtt() {
-        mqttService?.let {
+        mqtt5Service?.let {
             try {
                 it.close()
             } catch (e: Mqtt5MessageException) {
                 e.printStackTrace()
             }
-            mqttService = null
+            mqtt5Service = null
+        }
+        mqtt3Service?.let {
+            try {
+                it.close()
+            } catch (e: Mqtt3MessageException) {
+                e.printStackTrace()
+            }
+            mqtt5Service = null
         }
     }
 
@@ -85,7 +115,8 @@ class MQTTModule (base: Context?, var mqttOptions: MQTTOptions, private val list
         Timber.d("topic: $topic")
         Timber.d("message: $message")
         Timber.d("retain: $retain")
-        mqttService?.publish(topic, message, retain)
+        mqtt5Service?.publish(topic, message, retain)
+        mqtt3Service?.publish(topic, message, retain)
     }
 
     override fun subscriptionMessage(id: String, topic: String, payload: String) {
