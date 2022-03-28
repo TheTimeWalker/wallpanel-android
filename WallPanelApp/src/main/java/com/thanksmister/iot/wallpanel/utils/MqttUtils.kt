@@ -19,7 +19,6 @@ package com.thanksmister.iot.wallpanel.utils
 import android.text.TextUtils
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttClientBuilder
-import com.thanksmister.iot.wallpanel.network.MQTTService
 import timber.log.Timber
 import java.nio.charset.Charset
 import java.util.*
