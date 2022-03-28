@@ -115,10 +115,10 @@ class AboutFragment : Fragment() {
     }
 
     companion object {
-        const val SUPPORT_URL:String = "https://thanksmister.com/wallpanel-android/"
-        const val GOOGLE_PLAY_RATING = "com.thanksmister.iot.wallpanel"
-        const val GITHUB_URL = "https://github.com/thanksmister/wallpanel-android"
-        const val EMAIL_ADDRESS = "mister@thanksmister.com"
+        const val SUPPORT_URL:String = "https://wallpanel.xyz"
+        const val GOOGLE_PLAY_RATING = "xyz.wallpanel.app"
+        const val GITHUB_URL = "https://github.com/TheTimeWalker/wallpanel-android"
+        const val EMAIL_ADDRESS = "tony+wallpanel@stipanic.ch"
 
         fun newInstance(): AboutFragment {
             return AboutFragment()
