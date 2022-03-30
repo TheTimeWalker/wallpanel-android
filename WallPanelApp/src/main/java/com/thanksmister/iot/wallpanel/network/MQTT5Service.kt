@@ -168,7 +168,7 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
         try {
             mqttOptions?.let { mqttOptions ->
 
-                val mqttBuilder = MqttClient.builder().identifier(mqttOptions.getClientId()).serverHost("192.168.1.2").serverPort(1883)
+                val mqttBuilder = MqttClient.builder().identifier(mqttOptions.getClientId()).serverHost(mqttOptions.getBroker()).serverPort(mqttOptions.getPort())
                 mqttBuilder.addConnectedListener { context: MqttClientConnectedContext? ->
                     Timber.d("connect to broker completed")
                     subscribeToTopics(mqttOptions.getStateTopics())
