@@ -66,8 +66,7 @@ android {
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
     defaultConfig {
-        applicationId "com.thanksmister.iot.wallpanel"
-        // applicationId "com.timewalker.iot.wallpanel"
+        applicationId "xyz.wallpanel.app"
         minSdkVersion 19
         targetSdkVersion 31
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
@@ -94,8 +93,7 @@ android {
         dev {
             dimension "default"
             buildConfigField "String", BASE_ENVIRONMENT, '"DEV_ENVIRONMENT"'
-            applicationId "com.thanksmister.iot.wallpanel"
-            // applicationId "xyz.wallpanel.app"
+            applicationId "xyz.wallpanel.app"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-DEV"
             buildConfigField 'Integer', 'CODE', CODE()
             buildConfigField 'String', 'HASS_URL', "\"" + HASS_URL() +"\""
@@ -106,15 +104,13 @@ android {
         qa {
             dimension "default"
             buildConfigField "String", BASE_ENVIRONMENT, '"QA_ENVIRONMENT"'
-            applicationId "com.thanksmister.iot.wallpanel"
-            // applicationId "xyz.wallpanel.app"
+            applicationId "xyz.wallpanel.app"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-QA"
         }
         prod {
             dimension "default"
             buildConfigField "String", BASE_ENVIRONMENT, '"PROD_ENVIRONMENT"'
-            applicationId "com.thanksmister.iot.wallpanel"
-            // applicationId "xyz.wallpanel.app"
+            applicationId "xyz.wallpanel.app"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}"
             buildConfigField 'Integer', 'CODE', '1234'
             buildConfigField 'String', 'HASS_URL', '""'
@@ -159,7 +155,7 @@ dependencies {
 
     // LiveData + ViewModel
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation 'com.google.firebase:firebase-analytics:20.1.1'
+    implementation 'com.google.firebase:firebase-analytics:20.1.2'
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$versions.lifecycle"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.lifecycle"
 
@@ -199,7 +195,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
     // Firebase
-    implementation 'com.google.firebase:firebase-core:20.1.1'
+    implementation 'com.google.firebase:firebase-core:20.1.2'
 
     // Picasso image loading
     implementation 'com.squareup.picasso:picasso:2.71828'
