@@ -19,11 +19,12 @@ import android.webkit.ClientCertRequest
 import android.webkit.HttpAuthHandler
 import android.webkit.SafeBrowsingResponse
 
-class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient() {
+open class WebClientRenderWrapper(private val client: WebViewClient) : WebViewClient() {
+
     @TargetApi(Build.VERSION_CODES.O)
     override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mClient.onRenderProcessGone(view, detail)
+            client.onRenderProcessGone(view, detail)
             Timber.d("onRenderProcessGone %s %s", view, detail.didCrash())
             if (view.parent is ViewGroup) {
                 (view.parent as ViewGroup).removeView(view)
@@ -35,33 +36,33 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        return mClient.shouldOverrideUrlLoading(view, url)
+        return client.shouldOverrideUrlLoading(view, url)
     }
 
     @TargetApi(Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        return mClient.shouldOverrideUrlLoading(view, request)
+        return client.shouldOverrideUrlLoading(view, request)
     }
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap) {
-        mClient.onPageStarted(view, url, favicon)
+        client.onPageStarted(view, url, favicon)
     }
 
     override fun onPageFinished(view: WebView, url: String) {
-        mClient.onPageFinished(view, url)
+        client.onPageFinished(view, url)
     }
 
     override fun onLoadResource(view: WebView, url: String) {
-        mClient.onLoadResource(view, url)
+        client.onLoadResource(view, url)
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     override fun onPageCommitVisible(view: WebView, url: String) {
-        mClient.onPageCommitVisible(view, url)
+        client.onPageCommitVisible(view, url)
     }
 
     override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
-        return mClient.shouldInterceptRequest(view, url)
+        return client.shouldInterceptRequest(view, url)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -69,11 +70,11 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         view: WebView,
         request: WebResourceRequest
     ): WebResourceResponse? {
-        return mClient.shouldInterceptRequest(view, request)
+        return client.shouldInterceptRequest(view, request)
     }
 
     override fun onTooManyRedirects(view: WebView, cancelMsg: Message, continueMsg: Message) {
-        mClient.onTooManyRedirects(view, cancelMsg, continueMsg)
+        client.onTooManyRedirects(view, cancelMsg, continueMsg)
     }
 
     override fun onReceivedError(
@@ -82,7 +83,7 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         description: String,
         failingUrl: String
     ) {
-        mClient.onReceivedError(view, errorCode, description, failingUrl)
+        client.onReceivedError(view, errorCode, description, failingUrl)
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -91,7 +92,7 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         request: WebResourceRequest,
         error: WebResourceError
     ) {
-        mClient.onReceivedError(view, request, error)
+        client.onReceivedError(view, request, error)
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -100,24 +101,26 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         request: WebResourceRequest,
         errorResponse: WebResourceResponse
     ) {
-        mClient.onReceivedHttpError(view, request, errorResponse)
+        client.onReceivedHttpError(view, request, errorResponse)
     }
 
+
+
     override fun onFormResubmission(view: WebView, dontResend: Message, resend: Message) {
-        mClient.onFormResubmission(view, dontResend, resend)
+        client.onFormResubmission(view, dontResend, resend)
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
-        mClient.doUpdateVisitedHistory(view, url, isReload)
+        client.doUpdateVisitedHistory(view, url, isReload)
     }
 
     override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
-        mClient.onReceivedSslError(view, handler, error)
+        client.onReceivedSslError(view, handler, error)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onReceivedClientCertRequest(view: WebView, request: ClientCertRequest) {
-        mClient.onReceivedClientCertRequest(view, request)
+        client.onReceivedClientCertRequest(view, request)
     }
 
     override fun onReceivedHttpAuthRequest(
@@ -126,19 +129,19 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         host: String,
         realm: String
     ) {
-        mClient.onReceivedHttpAuthRequest(view, handler, host, realm)
+        client.onReceivedHttpAuthRequest(view, handler, host, realm)
     }
 
     override fun shouldOverrideKeyEvent(view: WebView, event: KeyEvent): Boolean {
-        return mClient.shouldOverrideKeyEvent(view, event)
+        return client.shouldOverrideKeyEvent(view, event)
     }
 
     override fun onUnhandledKeyEvent(view: WebView, event: KeyEvent) {
-        mClient.onUnhandledKeyEvent(view, event)
+        client.onUnhandledKeyEvent(view, event)
     }
 
     override fun onScaleChanged(view: WebView, oldScale: Float, newScale: Float) {
-        mClient.onScaleChanged(view, oldScale, newScale)
+        client.onScaleChanged(view, oldScale, newScale)
     }
 
     override fun onReceivedLoginRequest(
@@ -147,7 +150,7 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         account: String?,
         args: String
     ) {
-        mClient.onReceivedLoginRequest(view, realm, account, args)
+        client.onReceivedLoginRequest(view, realm, account, args)
     }
 
     @TargetApi(Build.VERSION_CODES.O_MR1)
@@ -157,6 +160,6 @@ class WebClientRenderWrapper(private val mClient: WebViewClient) : WebViewClient
         threatType: Int,
         callback: SafeBrowsingResponse
     ) {
-        mClient.onSafeBrowsingHit(view, request, threatType, callback)
+        client.onSafeBrowsingHit(view, request, threatType, callback)
     }
 }

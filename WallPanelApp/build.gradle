@@ -83,7 +83,7 @@ android {
         }
     }
     buildFeatures {
-        viewBinding = true
+        viewBinding true
     }
 
     flavorDimensions "default"

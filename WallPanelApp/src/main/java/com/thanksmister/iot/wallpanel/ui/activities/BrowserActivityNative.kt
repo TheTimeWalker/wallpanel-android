@@ -34,9 +34,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleObserver
 import com.google.android.material.snackbar.Snackbar
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.databinding.ActivityBrowserBinding
 import com.thanksmister.iot.wallpanel.network.ConnectionLiveData
 import com.thanksmister.iot.wallpanel.ui.fragments.CodeBottomSheetFragment
+import com.thanksmister.iot.wallpanel.utils.InternalWebClient
 import kotlinx.android.synthetic.main.activity_browser.*
+import kotlinx.android.synthetic.main.activity_browser.view.*
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -44,10 +47,8 @@ import java.util.concurrent.TimeUnit
 
 class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
 
-    private val webView: WebView by lazy {
-        findViewById<View>(R.id.activity_browser_webview_native) as WebView
-    }
-
+    private lateinit var webView: WebView
+    private lateinit var binding: ActivityBrowserBinding
     private var certPermissionsShown = false
     private var playlistHandler: Handler? = null
     private var codeBottomSheet: CodeBottomSheetFragment? = null
@@ -91,14 +92,17 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             configuration.hasClockScreenSaver = true
         }*/
 
+        binding = ActivityBrowserBinding.inflate(layoutInflater)
+        val view = binding.root
         try {
-            setContentView(R.layout.activity_browser)
+            setContentView(view)
+            //setContentView(R.layout.activity_browser)
         } catch (e: Exception) {
             Timber.e(e.message)
             AlertDialog.Builder(this@BrowserActivityNative)
-                    .setMessage(getString(R.string.dialog_missing_webview_warning))
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show()
+                .setMessage(getString(R.string.dialog_missing_webview_warning))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
             return
         }
 
@@ -110,6 +114,14 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             }
         }
 
+        configureConnection()
+
+        configureWebView(view)
+
+        initWebPageLoad()
+    }
+
+    private fun configureConnection() {
         connectionLiveData = ConnectionLiveData(this)
         connectionLiveData?.observe(this) { connected ->
             if (connected && isConnected.not()) {
@@ -124,113 +136,16 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
                 isConnected = false
             }
         }
+    }
 
+    private fun configureWebView(view:ViewGroup) {
+        webView = view.activity_browser_webview_native
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
         // Force links and redirects to open in the WebView instead of in a browser
-        webView.webChromeClient = object : WebChromeClient() {
-            var snackbar: Snackbar? = null
-            override fun onProgressChanged(view: WebView, newProgress: Int) {
-                if (newProgress == 100) {
-                    snackbar?.dismiss()
-                    if (view.url != null) {
-                        pageLoadComplete(view.url.toString())
-                    } else {
-                        Toast.makeText(this@BrowserActivityNative, getString(R.string.toast_empty_url), Toast.LENGTH_SHORT).show()
-                        complete()
-                    }
-                    return
-                }
-                if (displayProgress) {
-                    val text = getString(R.string.text_loading_percent, newProgress.toString(), view.url)
-                    if (snackbar == null) {
-                        snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
-                    } else {
-                        snackbar?.setText(text)
-                    }
-                    snackbar?.show()
-                }
-            }
+        configureWebChromeClient()
 
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-            override fun onPermissionRequest(request: PermissionRequest?) {
-                super.onPermissionRequest(request)
-                webkitPermissionRequest = request
-                request?.resources?.forEach {
-                    when(it){
-                        PermissionRequest.RESOURCE_AUDIO_CAPTURE -> {
-                            askForWebkitPermission(it, REQUEST_CODE_PERMISSION_AUDIO)
-                        }
-                        PermissionRequest.RESOURCE_VIDEO_CAPTURE -> {
-                            askForWebkitPermission(it, REQUEST_CODE_PERMISSION_CAMERA)
-                        }
-                    }
-                }
-            }
-
-            override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
-                if (view.context != null && !isFinishing) {
-                    AlertDialog.Builder(this@BrowserActivityNative)
-                            .setMessage(message)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show()
-                }
-                return true
-            }
-
-
-        }
-
-        webView.webViewClient = object : WebViewClient() {
-            private var isRedirect = false
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                isRedirect = true
-                view.loadUrl(url)
-                return true
-            }
-
-            // TODO load a special file here on disconnect and then reload page on timer
-            override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-                if (!isFinishing) {
-                    view.loadUrl("about:blank")
-                    view.loadUrl("file:///android_asset/error_page.html")
-                    isConnected = false
-                    startReloadDelay()
-                }
-            }
-
-            override fun onReceivedSslError(view: WebView, handler: SslErrorHandler?, error: SslError?) {
-                if (!certPermissionsShown && !isFinishing && !configuration.ignoreSSLErrors) {
-                    var message = getString(R.string.dialog_message_ssl_generic)
-                    when (error?.primaryError) {
-                        SslError.SSL_UNTRUSTED -> message = getString(R.string.dialog_message_ssl_untrusted)
-                        SslError.SSL_EXPIRED -> message = getString(R.string.dialog_message_ssl_expired)
-                        SslError.SSL_IDMISMATCH -> message = getString(R.string.dialog_message_ssl_mismatch)
-                        SslError.SSL_NOTYETVALID -> message = getString(R.string.dialog_message_ssl_not_yet_valid)
-                    }
-                    message += getString(R.string.dialog_message_ssl_continue)
-                    dialogUtils.showAlertDialog(this@BrowserActivityNative,
-                            getString(R.string.dialog_title_ssl_error),
-                            getString(R.string.dialog_message_ssl_continue),
-                            getString(R.string.button_continue),
-                            { _, which -> handler?.proceed() },
-                            { _, which -> handler?.proceed() }
-                    )
-                } else {
-                    handler?.proceed()
-                }
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                if(isConnected) {
-                    stopReloadDelay()
-                }
-                if (isRedirect) {
-                    isRedirect = false
-                    return
-                }
-            }
-        }
+        configureWebViewClient()
 
         webView.setOnTouchListener { v, event ->
             when (event.action) {
@@ -246,8 +161,138 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             }
             false
         }
+    }
 
-        initWebPageLoad()
+
+    private fun configureWebChromeClient() {
+        webView.webChromeClient = object : WebChromeClient() {
+            var snackbar: Snackbar? = null
+            override fun onProgressChanged(view: WebView, newProgress: Int) {
+                if (newProgress == 100) {
+                    snackbar?.dismiss()
+                    if (view.url != null) {
+                        pageLoadComplete(view.url.toString())
+                    } else {
+                        Toast.makeText(
+                            this@BrowserActivityNative,
+                            getString(R.string.toast_empty_url),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        complete()
+                    }
+                    return
+                }
+                if (displayProgress) {
+                    val text =
+                        getString(R.string.text_loading_percent, newProgress.toString(), view.url)
+                    if (snackbar == null) {
+                        snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE)
+                    } else {
+                        snackbar?.setText(text)
+                    }
+                    snackbar?.show()
+                }
+            }
+
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                super.onPermissionRequest(request)
+                webkitPermissionRequest = request
+                request?.resources?.forEach {
+                    when (it) {
+                        PermissionRequest.RESOURCE_AUDIO_CAPTURE -> {
+                            askForWebkitPermission(it, REQUEST_CODE_PERMISSION_AUDIO)
+                        }
+                        PermissionRequest.RESOURCE_VIDEO_CAPTURE -> {
+                            askForWebkitPermission(it, REQUEST_CODE_PERMISSION_CAMERA)
+                        }
+                    }
+                }
+            }
+
+            override fun onJsAlert(
+                view: WebView,
+                url: String,
+                message: String,
+                result: JsResult
+            ): Boolean {
+                if (view.context != null && !isFinishing) {
+                    AlertDialog.Builder(this@BrowserActivityNative)
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }
+                return true
+            }
+
+
+        }
+    }
+
+    private fun configureWebViewClient() {
+        webView.webViewClient = object : InternalWebClient() {
+            private var isRedirect = false
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                isRedirect = true
+                view.loadUrl(url)
+                return true
+            }
+
+            // TODO load a special file here on disconnect and then reload page on timer
+            override fun onReceivedError(
+                view: WebView,
+                errorCode: Int,
+                description: String,
+                failingUrl: String
+            ) {
+                if (!isFinishing) {
+                    view.loadUrl("about:blank")
+                    view.loadUrl("file:///android_asset/error_page.html")
+                    isConnected = false
+                    startReloadDelay()
+                }
+            }
+
+            override fun onReceivedSslError(
+                view: WebView,
+                handler: SslErrorHandler,
+                error: SslError
+            ) {
+                if (!certPermissionsShown && !isFinishing && !configuration.ignoreSSLErrors) {
+                    var message = getString(R.string.dialog_message_ssl_generic)
+                    when (error?.primaryError) {
+                        SslError.SSL_UNTRUSTED -> message =
+                            getString(R.string.dialog_message_ssl_untrusted)
+                        SslError.SSL_EXPIRED -> message =
+                            getString(R.string.dialog_message_ssl_expired)
+                        SslError.SSL_IDMISMATCH -> message =
+                            getString(R.string.dialog_message_ssl_mismatch)
+                        SslError.SSL_NOTYETVALID -> message =
+                            getString(R.string.dialog_message_ssl_not_yet_valid)
+                    }
+                    message += getString(R.string.dialog_message_ssl_continue)
+                    dialogUtils.showAlertDialog(this@BrowserActivityNative,
+                        getString(R.string.dialog_title_ssl_error),
+                        getString(R.string.dialog_message_ssl_continue),
+                        getString(R.string.button_continue),
+                        { _, which -> handler?.proceed() },
+                        { _, which -> handler?.proceed() }
+                    )
+                } else {
+                    handler?.proceed()
+                }
+            }
+
+            override fun onPageFinished(view: WebView, url: String) {
+                if (isConnected) {
+                    stopReloadDelay()
+                }
+                if (isRedirect) {
+                    isRedirect = false
+                    return
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -263,7 +308,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             setLightTheme()
         }
 
-        if (configuration.hardwareAccelerated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (configuration.hardwareAccelerated) {
             // chromium, enable hardware acceleration
             webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         } else {
@@ -276,7 +321,9 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
                 clearCache()
                 initWebPageLoad()
             }
-            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener { swipeContainer?.isEnabled = webView.scrollY == 0 }
+            mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+                swipeContainer?.isEnabled = webView.scrollY == 0
+            }
             swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
         } else {
             swipeContainer.isEnabled = false
@@ -284,7 +331,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
 
         setupSettingsButton()
 
-        if(configuration.hasSettingsUpdates()) {
+        if (configuration.hasSettingsUpdates()) {
             initWebPageLoad()
         }
     }
@@ -313,7 +360,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
     @SuppressLint("SetJavaScriptEnabled")
     // TODO handle deprecated web settings
     override fun configureWebSettings(userAgent: String) {
-        if(webSettings == null) {
+        if (webSettings == null) {
             webSettings = webView.settings
         }
         webSettings?.javaScriptEnabled = true
@@ -330,7 +377,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
         webSettings?.useWideViewPort = true
         webSettings?.pluginState = WebSettings.PluginState.ON
         webSettings?.setRenderPriority(WebSettings.RenderPriority.HIGH);
-       // webSettings?.cacheMode = WebSettings.LOAD_NO_CACHE;
+        // webSettings?.cacheMode = WebSettings.LOAD_NO_CACHE;
         webSettings?.mediaPlaybackRequiresUserGesture = false;
 
         if (userAgent.isNotEmpty()) {
@@ -366,9 +413,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
     }
 
     override fun evaluateJavascript(js: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView.evaluateJavascript(js, null)
-        }
+        webView.evaluateJavascript(js, null)
     }
 
     override fun clearCache() {
@@ -404,7 +449,11 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun askForWebkitPermission(permission: String, requestCode: Int) {
-        if (ContextCompat.checkSelfPermission(applicationContext, permission) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                applicationContext,
+                permission
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
                 // Show an expanation to the user *asynchronously* -- don't block
@@ -421,26 +470,33 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
 
     private fun showCodeBottomSheet() {
         codeBottomSheet = CodeBottomSheetFragment.newInstance(configuration.settingsCode.toString(),
-                object : CodeBottomSheetFragment.OnAlarmCodeFragmentListener {
-                    override fun onComplete(code: String) {
-                        codeBottomSheet?.dismiss()
-                        openSettings()
-                    }
+            object : CodeBottomSheetFragment.OnAlarmCodeFragmentListener {
+                override fun onComplete(code: String) {
+                    codeBottomSheet?.dismiss()
+                    openSettings()
+                }
 
-                    override fun onCodeError() {
-                        Toast.makeText(this@BrowserActivityNative, R.string.toast_code_invalid, Toast.LENGTH_SHORT).show()
-                    }
+                override fun onCodeError() {
+                    Toast.makeText(
+                        this@BrowserActivityNative,
+                        R.string.toast_code_invalid,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
 
-                    override fun onCancel() {
-                        codeBottomSheet?.dismiss()
-                    }
-                })
+                override fun onCancel() {
+                    codeBottomSheet?.dismiss()
+                }
+            })
         codeBottomSheet?.show(supportFragmentManager, codeBottomSheet?.tag)
     }
 
     private fun setupSettingsButton() {
         // Set the location and transparency of the fab button
-        val params: CoordinatorLayout.LayoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT)
+        val params: CoordinatorLayout.LayoutParams = CoordinatorLayout.LayoutParams(
+            CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+            CoordinatorLayout.LayoutParams.WRAP_CONTENT
+        )
         params.topMargin = 16
         params.leftMargin = 16
         params.rightMargin = 16
@@ -466,7 +522,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             }
             configuration.settingsTransparent -> {
                 launchSettingsFab.visibility = View.VISIBLE
-                launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.transparent)
+                launchSettingsFab.backgroundTintList =
+                    ContextCompat.getColorStateList(this, R.color.transparent)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     launchSettingsFab.compatElevation = 0f
                 }
@@ -474,7 +531,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             }
             else -> {
                 launchSettingsFab.visibility = View.VISIBLE
-                launchSettingsFab.backgroundTintList = ContextCompat.getColorStateList(this, R.color.colorAccent)
+                launchSettingsFab.backgroundTintList =
+                    ContextCompat.getColorStateList(this, R.color.colorAccent)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     launchSettingsFab.compatElevation = 4f
                 }
