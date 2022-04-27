@@ -33,6 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleObserver
 import com.google.android.material.snackbar.Snackbar
+import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.R
 import com.thanksmister.iot.wallpanel.databinding.ActivityBrowserBinding
 import com.thanksmister.iot.wallpanel.network.ConnectionLiveData
@@ -82,7 +83,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
 
         super.onCreate(savedInstanceState)
 
-        /*if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
+
             configuration.mqttBroker = BuildConfig.BROKER
             configuration.mqttUsername = BuildConfig.BROKER_USERNAME
             configuration.mqttPassword = BuildConfig.BROKER_PASS
@@ -90,7 +92,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver {
             configuration.isFirstTime = false
             configuration.settingsCode = BuildConfig.CODE.toString()
             configuration.hasClockScreenSaver = true
-        }*/
+
+        }
 
         binding = ActivityBrowserBinding.inflate(layoutInflater)
         val view = binding.root
