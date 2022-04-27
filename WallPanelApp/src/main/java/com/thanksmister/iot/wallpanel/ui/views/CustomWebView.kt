@@ -2,8 +2,6 @@ package com.thanksmister.iot.wallpanel.ui.views
 
 import android.annotation.SuppressLint
 import kotlin.jvm.JvmOverloads
-import android.webkit.WebView
-import android.webkit.JavascriptInterface
 import timber.log.Timber
 import android.annotation.TargetApi
 import android.content.Context
@@ -13,9 +11,8 @@ import android.view.ViewGroup
 import android.content.res.Resources.NotFoundException
 import android.util.AttributeSet
 import android.view.View
-import android.webkit.WebChromeClient
+import android.webkit.*
 import com.thanksmister.iot.wallpanel.utils.WebClientRenderWrapper
-import android.webkit.WebViewClient
 import com.thanksmister.iot.wallpanel.BuildConfig
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -25,6 +22,15 @@ class CustomWebView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     privateBrowsing: Boolean = false
 ) : WebView(context, attrs, defStyleAttr, privateBrowsing) {
+
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : this(
+        context,
+        attrs,
+        defStyleAttr,
+        false
+    )
 
     private var requestDisallow = false
     private val androidInterface: Any = object : Any() {
@@ -37,28 +43,40 @@ class CustomWebView @JvmOverloads constructor(
 
     init {
         val settings = settings
-        settings.javaScriptEnabled = true
-        settings.javaScriptCanOpenWindowsAutomatically = true
         isVerticalScrollBarEnabled = false
         isFocusable = true
         isFocusableInTouchMode = true
         webChromeClient = WebChromeClient()
-        webViewClient = WebClientRenderWrapper(WebViewClient())
-        setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
-        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        //    isNestedScrollingEnabled = true
-        //}
-        addJavascriptInterface(androidInterface, "Android")
+        //webViewClient = WebClientRenderWrapper(WebViewClient())
+        //addJavascriptInterface(androidInterface, "Android")
+
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.databaseEnabled = true
+        settings.saveFormData = true
+        settings.javaScriptCanOpenWindowsAutomatically = true
+        settings.setAppCacheEnabled(true)
+        settings.allowFileAccess = true
+        settings.allowFileAccessFromFileURLs = true
+        settings.allowContentAccess = true
+        settings.setSupportZoom(true)
+        settings.loadWithOverviewMode = true
+        settings.useWideViewPort = true
+        settings.pluginState = WebSettings.PluginState.ON
+        settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        // settings.cacheMode = WebSettings.LOAD_NO_CACHE;
+        settings.mediaPlaybackRequiresUserGesture = false;
+
+        /*if (userAgent.isNotEmpty()) {
+            settings.userAgentString = userAgent
+        }*/
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : this(
-        context,
-        attrs,
-        defStyleAttr,
-        false
-    ) {
-    }
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {

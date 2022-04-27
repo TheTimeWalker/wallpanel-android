@@ -32,7 +32,7 @@
             android:layout_height="match_parent"
             android:windowSoftInputMode="adjustResize">
 
-            <com.thanksmister.iot.wallpanel.ui.views.CustomWebView
+            <WebView
                 android:id="@+id/activity_browser_webview_native"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
