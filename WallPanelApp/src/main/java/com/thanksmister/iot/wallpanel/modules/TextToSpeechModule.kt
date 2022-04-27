@@ -25,8 +25,8 @@ import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import androidx.annotation.RequiresApi
+import com.thanksmister.iot.wallpanel.BuildConfig
 import com.thanksmister.iot.wallpanel.persistence.Configuration
-import timber.log.BuildConfig
 import timber.log.Timber
 import java.util.*
 

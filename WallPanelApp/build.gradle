@@ -66,7 +66,8 @@ android {
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
     defaultConfig {
-        applicationId "com.timewalker.iot.wallpanel"
+        applicationId "com.thanksmister.iot.wallpanel"
+        // applicationId "com.timewalker.iot.wallpanel"
         minSdkVersion 19
         targetSdkVersion 31
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
@@ -93,7 +94,8 @@ android {
         dev {
             dimension "default"
             buildConfigField "String", BASE_ENVIRONMENT, '"DEV_ENVIRONMENT"'
-            applicationId "xyz.wallpanel.app"
+            applicationId "com.thanksmister.iot.wallpanel"
+            // applicationId "xyz.wallpanel.app"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-DEV"
             buildConfigField 'Integer', 'CODE', CODE()
             buildConfigField 'String', 'HASS_URL', "\"" + HASS_URL() +"\""
@@ -104,13 +106,15 @@ android {
         qa {
             dimension "default"
             buildConfigField "String", BASE_ENVIRONMENT, '"QA_ENVIRONMENT"'
-            applicationId "xyz.wallpanel.app"
+            applicationId "com.thanksmister.iot.wallpanel"
+            // applicationId "xyz.wallpanel.app"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}-QA"
         }
         prod {
             dimension "default"
             buildConfigField "String", BASE_ENVIRONMENT, '"PROD_ENVIRONMENT"'
-            applicationId "xyz.wallpanel.app"
+            applicationId "com.thanksmister.iot.wallpanel"
+            // applicationId "xyz.wallpanel.app"
             versionName "${versionMajor}.${versionMinor}.${versionPatch} Build ${versionBuild}"
             buildConfigField 'Integer', 'CODE', '1234'
             buildConfigField 'String', 'HASS_URL', '""'
@@ -146,8 +150,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-vision:20.1.3'
 
     // Navigation
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.1'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
@@ -166,7 +170,7 @@ dependencies {
 
     // OKHttp
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
 
     // Dagger
     implementation "com.google.dagger:dagger:$versions.dagger"
@@ -184,7 +188,7 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4'
 
     // Logging
-    implementation 'com.jakewharton.timber:timber:4.5.1'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:28.4.0')
