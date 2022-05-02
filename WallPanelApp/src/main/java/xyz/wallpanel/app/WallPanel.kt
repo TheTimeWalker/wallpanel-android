@@ -31,7 +31,7 @@ class WallPanel : DaggerApplication() {
 
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerApplicationComponent.builder().create(this);
+        return DaggerApplicationComponent.builder().create(this)
     }
 
     override fun onCreate() {
