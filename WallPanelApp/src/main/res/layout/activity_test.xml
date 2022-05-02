@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2021 ThanksMister LLC
+  ~ Copyright (c) 2022 Wallpanel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,6 +20,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activities.TestActivity">
+    tools:context="xyz.wallpanel.app.ui.activities.TestActivity">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

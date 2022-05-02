@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2019 ThanksMister LLC
+  ~ Copyright (c) 2022 WallPanel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView
+<xyz.wallpanel.app.ui.views.ScreenSaverView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/screenSaverView"
@@ -76,4 +76,4 @@
 
     </LinearLayout>
 
-</com.thanksmister.iot.wallpanel.ui.views.ScreenSaverView>
+</xyz.wallpanel.app.ui.views.ScreenSaverView>
