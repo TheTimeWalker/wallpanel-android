@@ -136,10 +136,10 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
 
         if (configuration.hardwareAccelerated) {
             // chromium, enable hardware acceleration
-            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         } else {
             // older android version, disable hardware acceleration
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
 
         if (configuration.browserRefresh) {
@@ -221,9 +221,9 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         webSettings?.loadWithOverviewMode = true
         webSettings?.useWideViewPort = true
         webSettings?.pluginState = WebSettings.PluginState.ON
-        webSettings?.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webSettings?.setRenderPriority(WebSettings.RenderPriority.HIGH)
         // webSettings?.cacheMode = WebSettings.LOAD_NO_CACHE;
-        webSettings?.mediaPlaybackRequiresUserGesture = false;
+        webSettings?.mediaPlaybackRequiresUserGesture = false
 
         if (userAgent.isNotEmpty()) {
             webSettings?.userAgentString = userAgent
@@ -352,14 +352,14 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
     }
 
     private fun startPlaylist() {
-        playlistHandler = Handler()
+        playlistHandler = Handler(Looper.getMainLooper())
         playlistHandler?.postDelayed(playlistRunnable, 10)
     }
 
 
 
     private fun showCodeBottomSheet() {
-        codeBottomSheet = CodeBottomSheetFragment.newInstance(configuration.settingsCode.toString(),
+        codeBottomSheet = CodeBottomSheetFragment.newInstance(configuration.settingsCode,
             object : CodeBottomSheetFragment.OnAlarmCodeFragmentListener {
                 override fun onComplete(code: String) {
                     codeBottomSheet?.dismiss()
