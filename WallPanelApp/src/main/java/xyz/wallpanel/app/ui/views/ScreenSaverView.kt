@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit
 
 class ScreenSaverView : RelativeLayout {
 
-    private var binding: DialogScreenSaverBinding = DialogScreenSaverBinding.bind(this)
+    private lateinit var binding: DialogScreenSaverBinding
     private var timeHandler: Handler? = null
     private var wallPaperHandler: Handler? = null
     private var saverContext: Context? = null
@@ -109,14 +109,19 @@ class ScreenSaverView : RelativeLayout {
         saverContext = context
     }
 
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        binding = DialogScreenSaverBinding.bind(this)
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         timeHandler?.removeCallbacks(timeRunnable)
         wallPaperHandler?.removeCallbacks(wallPaperRunnable)
     }
 
-    fun init(hasWeb: Boolean, urlWeb: String, hasWallpaper: Boolean, hasClock: Boolean, rotationInterval: Long) {
-        this.rotationInterval = rotationInterval
+    fun init(hasWeb: Boolean, urlWeb: String, hasWallpaper: Boolean, hasClock: Boolean, rotationDelay: Long) {
+        rotationInterval = rotationDelay
         showWebPage = hasWeb
         webUrl = urlWeb
         showWallpaper = hasWallpaper

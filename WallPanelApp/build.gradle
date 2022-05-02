@@ -26,8 +26,6 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-
-
 def versionMajor = 0
 def versionMinor = 10
 def versionPatch = 0
@@ -68,12 +66,12 @@ android {
         generateStubs = true
         correctErrorTypes = true
     }
-    compileSdkVersion 31
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "xyz.wallpanel.app"
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
         multiDexEnabled true
@@ -207,12 +205,14 @@ dependencies {
     //
     implementation 'com.google.firebase:firebase-core:20.1.2'
 
-    // Import the BoM for the Firebase platform
+    // Import the Firebase BoM (see: https://firebase.google.com/docs/android/learn-more#bom)
+    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation platform('com.google.firebase:firebase-bom:29.3.1')
 
-    // Declare the dependencies for the Crashlytics and Analytics libraries
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-analytics-ktx'
+    // For an optimal experience using Crashlytics, add the Firebase SDK
+    // for Google Analytics. This is recommended, but not required.
+    implementation 'com.google.firebase:firebase-analytics'
+    // Firebase Crashlytics (Kotlin)
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
     // Unit tests
