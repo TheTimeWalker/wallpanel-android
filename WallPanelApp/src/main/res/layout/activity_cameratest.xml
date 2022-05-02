@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2019 ThanksMister LLC
+  ~ Copyright (c) 2022 WallPanel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
+        <xyz.wallpanel.app.ui.views.CameraSourcePreview
             android:id="@+id/imageView_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

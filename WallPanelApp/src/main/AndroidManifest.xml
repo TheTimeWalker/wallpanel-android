@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.thanksmister.iot.wallpanel">
+    package="xyz.wallpanel.app">
     <!-- Permissions the Application Requires -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -37,7 +37,7 @@
         android:required="false" />
 
     <application
-        android:name=".WallPanel"
+        android:name="xyz.wallpanel.app.WallPanel"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -56,7 +56,7 @@
             </intent-filter>
         </activity>-->
         <activity
-            android:name=".ui.activities.BrowserActivityNative"
+            android:name="xyz.wallpanel.app.ui.activities.BrowserActivityNative"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:enabled="true"
             android:exported="true"
@@ -72,20 +72,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activities.LiveCameraActivity"
+            android:name="xyz.wallpanel.app.ui.activities.LiveCameraActivity"
             android:label="@string/title_camera_test" />
         <activity
-            android:name=".ui.activities.SettingsActivity"
+            android:name="xyz.wallpanel.app.ui.activities.SettingsActivity"
             android:label="@string/title_settings" />
 
         <service
-            android:name=".network.WallPanelService"
+            android:name="xyz.wallpanel.app.network.WallPanelService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
 
         <receiver
-            android:name=".BootUpReceiver"
+            android:name="xyz.wallpanel.app.BootUpReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
