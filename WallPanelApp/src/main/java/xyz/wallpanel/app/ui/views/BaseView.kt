@@ -21,10 +21,12 @@ import android.media.AudioManager
 import android.util.AttributeSet
 import android.widget.LinearLayout
 import xyz.wallpanel.app.R
-import kotlinx.android.synthetic.main.dialog_code_set.view.*
-import kotlinx.android.synthetic.main.view_keypad.view.*
+import xyz.wallpanel.app.databinding.DialogCodeSetBinding
+//import xyz.wallpanel.app.databinding.ViewKeypadBinding
 
 abstract class BaseView : LinearLayout {
+
+    private lateinit var binding: DialogCodeSetBinding
 
     var currentCode: String = ""
     var codeComplete = false
@@ -41,41 +43,41 @@ abstract class BaseView : LinearLayout {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-
-        button0.setOnClickListener {
+        binding = DialogCodeSetBinding.bind(this)
+        binding.keyPad.button0.setOnClickListener {
             addPinCode("0")
         }
-        button1.setOnClickListener {
+        binding.keyPad.button1.setOnClickListener {
             addPinCode("1")
         }
-        button2.setOnClickListener {
+        binding.keyPad.button2.setOnClickListener {
             addPinCode("2")
         }
-        button3.setOnClickListener {
+        binding.keyPad.button3.setOnClickListener {
             addPinCode("3")
         }
-        button4.setOnClickListener {
+        binding.keyPad.button4.setOnClickListener {
             addPinCode("4")
         }
-        button5.setOnClickListener {
+        binding.keyPad.button5.setOnClickListener {
             addPinCode("5")
         }
-        button6.setOnClickListener {
+        binding.keyPad.button6.setOnClickListener {
             addPinCode("6")
         }
-        button7.setOnClickListener {
+        binding.keyPad.button7.setOnClickListener {
             addPinCode("7")
         }
-        button8.setOnClickListener {
+        binding.keyPad.button8.setOnClickListener {
             addPinCode("8")
         }
-        button9.setOnClickListener {
+        binding.keyPad.button9.setOnClickListener {
             addPinCode("9")
         }
-        buttonDel.setOnClickListener {
+        binding.keyPad.buttonDel.setOnClickListener {
             removePinCode()
         }
-        buttonDel.setOnClickListener {
+        binding.keyPad.buttonDel.setOnClickListener {
             removePinCode()
         }
     }
@@ -95,40 +97,39 @@ abstract class BaseView : LinearLayout {
     abstract fun reset()
 
     protected fun showFilledPins(pinsShown: Int) {
-        if (pinCode1 != null && pinCode2 != null && pinCode3 != null && pinCode4 != null) {
-            when (pinsShown) {
-                1 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                }
-                2 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                }
-                3 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                }
-                4 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_checked_black)
-                }
-                else -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                }
+        when (pinsShown) {
+            1 -> {
+                binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                binding.pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+            }
+            2 -> {
+                binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+            }
+            3 -> {
+                binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+            }
+            4 -> {
+                binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
+                binding.pinCode4.setImageResource(R.drawable.ic_radio_button_checked_black)
+            }
+            else -> {
+                binding.pinCode1.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                binding.pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                binding.pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
             }
         }
+
     }
 
     companion object {

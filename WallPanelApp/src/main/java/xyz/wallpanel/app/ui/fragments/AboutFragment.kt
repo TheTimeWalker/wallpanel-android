@@ -27,8 +27,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
 import xyz.wallpanel.app.R
-import xyz.wallpanel.databinding.FragmentAboutBinding
 import xyz.wallpanel.app.ui.activities.SettingsActivity
+import xyz.wallpanel.app.databinding.FragmentAboutBinding
 
 import timber.log.Timber
 

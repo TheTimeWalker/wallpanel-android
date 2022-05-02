@@ -23,25 +23,25 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import androidx.core.app.ActivityCompat
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.WindowManager
 import android.widget.Toast
 import xyz.wallpanel.app.R
-import xyz.wallpanel.databinding.ActivityCameratestBinding
 import xyz.wallpanel.app.modules.CameraCallback
 import xyz.wallpanel.app.persistence.Configuration
 import xyz.wallpanel.app.ui.DetectionViewModel
 import xyz.wallpanel.app.ui.views.CameraSourcePreview
 import dagger.android.support.DaggerAppCompatActivity
-import kotlinx.android.synthetic.main.activity_cameratest.view.*
 import timber.log.Timber
+import xyz.wallpanel.app.databinding.ActivityLiveCameraBinding
 import javax.inject.Inject
 
 class LiveCameraActivity : DaggerAppCompatActivity() {
 
-    private lateinit var binding: ActivityCameratestBinding
+    private lateinit var binding: ActivityLiveCameraBinding
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: DetectionViewModel
     @Inject lateinit var configuration: Configuration
@@ -69,9 +69,9 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityCameratestBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        binding = ActivityLiveCameraBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         //setContentView(R.layout.activity_cameratest)
 
         if (supportActionBar != null) {
@@ -84,13 +84,12 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         if(configuration.hardwareAccelerated && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         }
-        preview = view.imageView_preview
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetectionViewModel::class.java)
 
         // Check for the camera permission before accessing the camera.
         val rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
         if (rc == PackageManager.PERMISSION_GRANTED) {
-            viewModel.startCameraPreview(cameraCallback, preview!!)
+            viewModel.startCameraPreview(cameraCallback, binding.imageViewPreview)
         } else {
             requestCameraPermission()
         }
@@ -159,7 +158,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
     }
 
     private fun startUpdatePicture() {
-        updateHandler = Handler()
+        updateHandler = Handler(Looper.getMainLooper())
         updateHandler!!.postDelayed(updatePicture, interval.toLong())
     }
 

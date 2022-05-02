@@ -26,6 +26,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.BatteryManager
 import android.os.Handler
+import android.os.Looper
 import xyz.wallpanel.app.R
 import org.json.JSONException
 import org.json.JSONObject
@@ -40,7 +41,7 @@ constructor(private val context: Context){
 
     private val mSensorManager: SensorManager?
     private val mSensorList = ArrayList<Sensor>()
-    private val batteryHandler = Handler()
+    private val batteryHandler = Handler(Looper.getMainLooper())
     private var updateFrequencyMilliSeconds: Int = 0
     private var callback: SensorCallback? = null
     private var sensorsPublished: Boolean = false

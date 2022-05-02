@@ -20,10 +20,11 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.AttributeSet
 import xyz.wallpanel.app.R
-import kotlinx.android.synthetic.main.dialog_code_set.view.*
+import xyz.wallpanel.app.databinding.DialogCodeSetBinding
 
 class SettingsCodeView : BaseView {
 
+    private var binding: DialogCodeSetBinding = DialogCodeSetBinding.bind(this)
     internal var alarmListener: ViewListener? = null
 
     private val delayRunnable = object : Runnable {
@@ -53,7 +54,7 @@ class SettingsCodeView : BaseView {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        codeTitle.text = context.getString(R.string.dialog_enter_code)
+        binding.codeTitle.text = context.getString(R.string.dialog_enter_code)
     }
 
     override fun onCancel() {

@@ -39,11 +39,9 @@ import xyz.wallpanel.app.ui.fragments.CodeBottomSheetFragment
 import xyz.wallpanel.app.utils.InternalWebChromeClient
 import xyz.wallpanel.app.ui.views.WebClientCallback
 import xyz.wallpanel.app.utils.InternalWebClient
-import kotlinx.android.synthetic.main.activity_browser.*
-import kotlinx.android.synthetic.main.activity_browser.view.*
-import timber.log.Timber
 import xyz.wallpanel.app.BuildConfig
 import xyz.wallpanel.app.R
+import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -100,9 +98,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         }
 
         binding = ActivityBrowserBinding.inflate(layoutInflater)
-        val view = binding.root
         try {
-            setContentView(view)
+            setContentView(binding.root)
         } catch (e: Exception) {
             Timber.e(e.message)
             AlertDialog.Builder(this@BrowserActivityNative)
@@ -112,7 +109,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
             return
         }
 
-        launchSettingsFab.setOnClickListener {
+        binding.launchSettingsFab.setOnClickListener {
             if (configuration.isFirstTime) {
                 openSettings()
             } else {
@@ -121,7 +118,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         }
 
         configureConnection()
-        configureWebView(view)
+        configureWebView(binding.root)
         initWebPageLoad()
 
         val crashButton = Button(this)
@@ -154,16 +151,16 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         }
 
         if (configuration.browserRefresh) {
-            swipeContainer.setOnRefreshListener {
+            binding.swipeContainer.setOnRefreshListener {
                 clearCache()
                 initWebPageLoad()
             }
             mOnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
-                swipeContainer?.isEnabled = webView.scrollY == 0
+                binding.swipeContainer?.isEnabled = webView.scrollY == 0
             }
-            swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
+            binding.swipeContainer.viewTreeObserver.addOnScrollChangedListener(mOnScrollChangedListener)
         } else {
-            swipeContainer.isEnabled = false
+            binding.swipeContainer.isEnabled = false
         }
 
         setupSettingsButton()
@@ -175,8 +172,9 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
 
     override fun onStop() {
         super.onStop()
+        val view = binding.root
         if (mOnScrollChangedListener != null && configuration.browserRefresh) {
-            swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
+            binding.swipeContainer.viewTreeObserver.removeOnScrollChangedListener(mOnScrollChangedListener)
         }
     }
 
@@ -246,8 +244,8 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
     }
 
     override fun complete() {
-        if (swipeContainer != null && swipeContainer.isRefreshing && configuration.browserRefresh) {
-            swipeContainer.isRefreshing = false
+        if (binding.swipeContainer != null && binding.swipeContainer.isRefreshing && configuration.browserRefresh) {
+            binding.swipeContainer.isRefreshing = false
         }
     }
 
@@ -314,7 +312,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
 
     @SuppressLint("ClickableViewAccessibility")
     private fun configureWebView(view: ViewGroup) {
-        webView = view.activity_browser_webview_native
+        webView = binding.activityBrowserWebviewNative
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         // Force links and redirects to open in the WebView instead of in a browser
         configureWebChromeClient()
@@ -345,7 +343,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
     }
 
     private fun initWebPageLoad() {
-        progressView.visibility = View.GONE
+        binding.progressView.visibility = View.GONE
         webView.visibility = View.VISIBLE
         // set user agent
         configureWebSettings(configuration.browserUserAgent)
@@ -416,28 +414,28 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
                 params.gravity = Gravity.TOP or Gravity.START
             }
         }
-        launchSettingsFab.layoutParams = params
+        binding.launchSettingsFab.layoutParams = params
         when {
             configuration.settingsDisabled -> {
-                launchSettingsFab.visibility = View.GONE
+                binding.launchSettingsFab.visibility = View.GONE
             }
             configuration.settingsTransparent -> {
-                launchSettingsFab.visibility = View.VISIBLE
-                launchSettingsFab.backgroundTintList =
+                binding.launchSettingsFab.visibility = View.VISIBLE
+                binding.launchSettingsFab.backgroundTintList =
                     ContextCompat.getColorStateList(this, R.color.transparent)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    launchSettingsFab.compatElevation = 0f
+                    binding.launchSettingsFab.compatElevation = 0f
                 }
-                launchSettingsFab.imageAlpha = 0
+                binding.launchSettingsFab.imageAlpha = 0
             }
             else -> {
-                launchSettingsFab.visibility = View.VISIBLE
-                launchSettingsFab.backgroundTintList =
+                binding.launchSettingsFab.visibility = View.VISIBLE
+                binding.launchSettingsFab.backgroundTintList =
                     ContextCompat.getColorStateList(this, R.color.colorAccent)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    launchSettingsFab.compatElevation = 4f
+                    binding.launchSettingsFab.compatElevation = 4f
                 }
-                launchSettingsFab.imageAlpha = 180
+                binding.launchSettingsFab.imageAlpha = 180
             }
         }
     }

@@ -22,6 +22,7 @@ import android.content.DialogInterface
 import android.net.http.SslError
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.AttributeSet
@@ -36,13 +37,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import xyz.wallpanel.app.R
 import xyz.wallpanel.app.persistence.Configuration.Companion.WEB_SCREEN_SAVER
-import kotlinx.android.synthetic.main.dialog_screen_saver.view.*
 import timber.log.Timber
+import xyz.wallpanel.app.databinding.DialogScreenSaverBinding
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ScreenSaverView : RelativeLayout {
 
+    private var binding: DialogScreenSaverBinding = DialogScreenSaverBinding.bind(this)
     private var timeHandler: Handler? = null
     private var wallPaperHandler: Handler? = null
     private var saverContext: Context? = null
@@ -63,24 +65,24 @@ class ScreenSaverView : RelativeLayout {
             calendar.time = date
             val currentTimeString = DateUtils.formatDateTime(context, date.time, DateUtils.FORMAT_SHOW_TIME)
             val currentDayString = DateUtils.formatDateTime(context, date.time, DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE)
-            screenSaverClock.text = currentTimeString
-            screenSaverDay.text = currentDayString
+            binding.screenSaverClock.text = currentTimeString
+            binding.screenSaverDay.text = currentDayString
 
-            val width = screenSaverClockLayout.width
-            val height = screenSaverClockLayout.height
+            val width = binding.screenSaverClockLayout.width
+            val height = binding.screenSaverClockLayout.height
 
-            parentWidth = screenSaverView.width
-            parentHeight = screenSaverView.height
+            parentWidth = binding.screenSaverView.width
+            parentHeight = binding.screenSaverView.height
 
             try {
                 if (width > 0 && height > 0 && parentWidth > 0 && parentHeight > 0) {
                     if (parentHeight - width > 0) {
                         val newX = Random().nextInt(parentWidth - width)
-                        screenSaverClockLayout.x = newX.toFloat()
+                        binding.screenSaverClockLayout.x = newX.toFloat()
                     }
                     if (parentHeight - height > 0) {
                         val newY = Random().nextInt(parentHeight - height)
-                        screenSaverClockLayout.y = newY.toFloat()
+                        binding.screenSaverClockLayout.y = newY.toFloat()
                     }
                 }
             } catch (e: IllegalArgumentException) {
@@ -123,41 +125,41 @@ class ScreenSaverView : RelativeLayout {
         // always allow the clock screensaver to be displayed
         if(showClock) {
             setClockViews()
-            timeHandler = Handler()
+            timeHandler = Handler(Looper.getMainLooper())
             timeHandler?.postDelayed(timeRunnable, 10)
-            screenSaverClockLayout.visibility = View.VISIBLE
+            binding.screenSaverClockLayout.visibility = View.VISIBLE
             //screenSaverWebViewLayout.visibility = View.GONE
         } else {
-            screenSaverClockLayout.visibility = View.GONE
+            binding.screenSaverClockLayout.visibility = View.GONE
         }
 
         // show optional screensaver layers
         if (showWallpaper) {
-            wallPaperHandler = Handler()
+            wallPaperHandler = Handler(Looper.getMainLooper())
             wallPaperHandler?.postDelayed(wallPaperRunnable, 10)
-            screenSaverImageLayout.visibility  = View.VISIBLE
-            screenSaverWebViewLayout.visibility = View.GONE
+            binding.screenSaverImageLayout.visibility  = View.VISIBLE
+            binding.screenSaverWebViewLayout.visibility = View.GONE
         } else if (showWebPage) {
             //c
-            screenSaverImageLayout.visibility  = View.GONE
-            screenSaverWebViewLayout.visibility = View.VISIBLE
+            binding.screenSaverImageLayout.visibility  = View.GONE
+            binding.screenSaverWebViewLayout.visibility = View.VISIBLE
             startWebScreenSaver(webUrl)
         }
     }
 
     // setup clock size based on screen and weather settings
     private fun setClockViews() {
-        val initialRegular = screenSaverClock.textSize
-        screenSaverClock.setTextSize(TypedValue.COMPLEX_UNIT_PX, initialRegular + 100)
+        val initialRegular = binding.screenSaverClock.textSize
+        binding.screenSaverClock.setTextSize(TypedValue.COMPLEX_UNIT_PX, initialRegular + 100)
     }
 
     private fun setScreenSaverView() {
         Glide.with(this.context.applicationContext)
-                .load(String.format(UNSPLASH_IT_URL, screenSaverView.width, screenSaverView.height))
+                .load(String.format(UNSPLASH_IT_URL, binding.screenSaverView.width, binding.screenSaverView.height))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .centerCrop()
                 .skipMemoryCache(true)
-                .into(screenSaverImageLayout);
+                .into(binding.screenSaverImageLayout);
     }
 
     private fun closeView() {
@@ -169,11 +171,12 @@ class ScreenSaverView : RelativeLayout {
         loadWebPage(url)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun loadWebPage(url: String) {
         Timber.d("loadWebPage url ${url}")
         configureWebSettings("")
         clearCache()
-        screenSaverWebView?.webChromeClient = object : WebChromeClient() {
+        binding.screenSaverWebView.webChromeClient = object : WebChromeClient() {
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 AlertDialog.Builder(view.context, R.style.CustomAlertDialog)
                         .setTitle(context.getString(R.string.dialog_title_ssl_error))
@@ -183,14 +186,12 @@ class ScreenSaverView : RelativeLayout {
                 return true
             }
         }
-        screenSaverWebView?.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                v?.performClick()
-                closeView()
-                return false
-            }
-        })
-        screenSaverWebView?.webViewClient = object : WebViewClient() {
+        binding.screenSaverWebView.setOnTouchListener { v, _ ->
+            v.performClick()
+            closeView()
+            false
+        }
+        binding.screenSaverWebView.webViewClient = object : WebViewClient() {
             //If you will not use this method url links are open in new browser not in webview
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 view.loadUrl(url)
@@ -230,28 +231,28 @@ class ScreenSaverView : RelativeLayout {
                 }
             }
         }
-        screenSaverWebView?.loadUrl(url)
+        binding.screenSaverWebView.loadUrl(url)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebSettings(userAgent: String) {
-        val webSettings = screenSaverWebView?.settings
-        webSettings?.javaScriptEnabled = true
-        webSettings?.domStorageEnabled = true
-        webSettings?.databaseEnabled = true
-        webSettings?.setAppCacheEnabled(true)
-        webSettings?.javaScriptCanOpenWindowsAutomatically = true
+        val webSettings = binding.screenSaverWebView.settings
+        webSettings.javaScriptEnabled = true
+        webSettings.domStorageEnabled = true
+        webSettings.databaseEnabled = true
+        webSettings.setAppCacheEnabled(true)
+        webSettings.javaScriptCanOpenWindowsAutomatically = true
         if (!TextUtils.isEmpty(userAgent)) {
-            webSettings?.userAgentString = userAgent
+            webSettings.userAgentString = userAgent
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            webSettings?.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
-        Timber.d(webSettings?.userAgentString)
+        Timber.d(webSettings.userAgentString)
     }
 
     private fun clearCache() {
-        screenSaverWebView?.clearCache(true)
+        binding.screenSaverWebView.clearCache(true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().removeAllCookies(null)
         }
