@@ -40,3 +40,4 @@ google-services.json
 
 # Android Profiling
 *.hprof
+keystore.gradle
