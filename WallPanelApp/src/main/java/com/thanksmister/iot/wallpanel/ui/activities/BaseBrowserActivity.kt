@@ -24,11 +24,10 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -69,7 +68,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     var wallPanelService: Intent? = null
     private var decorView: View? = null
-    private val inactivityHandler: Handler = Handler()
+    private val inactivityHandler: Handler = Handler(Looper.getMainLooper())
     private var userPresent: Boolean = false
     private var hasWakeScreen = false
     var displayProgress = true
@@ -291,7 +290,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         bm.sendBroadcast(intent)
     }
 
-    internal fun pageLoadComplete(url: String) {
+     fun pageLoadComplete(url: String) {
         Timber.d("pageLoadComplete currentUrl $url")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url)
