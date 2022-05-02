@@ -116,6 +116,7 @@
     <string name="mail_subject_text">Send Feedback:</string>
 
     <string name="thanks_mister_title">Thanks, Mister!</string>
+    <string name="an_open_source_project_text">An Open Source Project maintained by wonderful people</string>
     <string name="designer_developer_text">Design and development</string>
     <string name="company_url_text">thanksmister.com</string>
     <string name="company_email">mister@thanksmister.com</string>
