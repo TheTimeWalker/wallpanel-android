@@ -34,16 +34,16 @@
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
                 android:gravity="center_horizontal">
-            
+
             <ImageView
                     android:layout_width="144dp"
                     android:layout_height="144dp"
-                    android:src="@drawable/ic_mister"/>
-            
+                    android:src="@mipmap/ic_launcher"/>
+
             <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="16dp"/>
-            
+
             <TextView
                     android:text="@string/designer_developer_text"
                     android:layout_width="wrap_content"
@@ -51,23 +51,14 @@
                     style="@style/TextAppearance.AppCompat.Medium"
                     android:ellipsize="marquee"
                     android:fadingEdge="horizontal"/>
-
             <TextView
-                    android:text="@string/thanks_mister_title"
-                    style="@style/TextAppearance.AppCompat.Large"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="30sp"
-                    android:maxLines="2"/>
-
-            <TextView
-                    android:text="@string/company_url_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/TextAppearance.AppCompat.Small"
-                    android:maxLines="2"
-                    android:paddingBottom="2dp"
-                    android:autoLink="web|email"/>
+                android:text="@string/an_open_source_project_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:ellipsize="marquee"
+                android:gravity="center"
+                android:fadingEdge="horizontal"/>
 
             <TextView
                     android:id="@+id/versionName"

@@ -29,16 +29,19 @@ import android.view.MenuItem
 import android.view.WindowManager
 import android.widget.Toast
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.databinding.ActivityCameratestBinding
 import com.thanksmister.iot.wallpanel.modules.CameraCallback
 import com.thanksmister.iot.wallpanel.persistence.Configuration
 import com.thanksmister.iot.wallpanel.ui.DetectionViewModel
 import com.thanksmister.iot.wallpanel.ui.views.CameraSourcePreview
 import dagger.android.support.DaggerAppCompatActivity
+import kotlinx.android.synthetic.main.activity_cameratest.view.*
 import timber.log.Timber
 import javax.inject.Inject
 
 class LiveCameraActivity : DaggerAppCompatActivity() {
 
+    private lateinit var binding: ActivityCameratestBinding
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: DetectionViewModel
     @Inject lateinit var configuration: Configuration
@@ -66,7 +69,10 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_cameratest)
+        binding = ActivityCameratestBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        //setContentView(R.layout.activity_cameratest)
 
         if (supportActionBar != null) {
             supportActionBar!!.show()
@@ -78,7 +84,7 @@ class LiveCameraActivity : DaggerAppCompatActivity() {
         if(configuration.hardwareAccelerated && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
         }
-        preview = findViewById<CameraSourcePreview>(R.id.imageView_preview)
+        preview = view.imageView_preview
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetectionViewModel::class.java)
 
         // Check for the camera permission before accessing the camera.

@@ -1,23 +1,9 @@
-/*
- * Copyright (c) 2019 ThanksMister LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed
- * under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.thanksmister.iot.wallpanel.network
 
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.content.Context
+import android.os.Build
 import android.text.TextUtils
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttGlobalPublishFilter
@@ -35,7 +21,7 @@ import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5Disconnect
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import com.hivemq.client.util.TypeSwitch
 import com.thanksmister.iot.wallpanel.R
-import com.thanksmister.iot.wallpanel.utils.StringUtils
+import com.thanksmister.iot.wallpanel.ext.convertArrayToString
 import timber.log.Timber
 import java.io.IOException
 import java.security.GeneralSecurityException
@@ -43,11 +29,11 @@ import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
-import kotlin.text.Charsets.UTF_8
 
-
-class MQTT5Service(private var context: Context, options: MQTTOptions,
-                   private var listener: IMqttManagerListener?) : MQTTServiceInterface {
+class MQTT5Service(
+    private var context: Context, options: MQTTOptions,
+    private var listener: IMqttManagerListener?
+) : MQTTServiceInterface {
 
     private var mqtt5AsyncClient: Mqtt5AsyncClient? = null
     private var mqttOptions: MQTTOptions? = null
@@ -57,9 +43,11 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
         initialize(options)
     }
 
-    override fun reconfigure(context: Context,
-                             newOptions: MQTTOptions,
-                             listener: IMqttManagerListener) {
+    override fun reconfigure(
+        context: Context,
+        newOptions: MQTTOptions,
+        listener: IMqttManagerListener
+    ) {
         try {
             close()
         } catch (e: Mqtt5MessageException) {
@@ -70,9 +58,8 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
         initialize(newOptions)
     }
 
-    override fun isReady(): Boolean {
-        return mReady.get()
-    }
+    override val isReady: Boolean
+        get() = mReady.get()
 
     @Throws(Mqtt5MessageException::class)
     override fun close() {
@@ -81,7 +68,9 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
         mqtt5AsyncClient?.let {
 
             mqttOptions?.let {
-                val offlineMessage = Mqtt5Publish.builder().topic("${it.getBaseTopic()}${CONNECTION}").payload(OFFLINE.toByteArray()).retain(true).build()
+                val offlineMessage =
+                    Mqtt5Publish.builder().topic("${it.getBaseTopic()}${CONNECTION}")
+                        .payload(OFFLINE.toByteArray()).retain(true).build()
                 sendMessage(offlineMessage)
             }
 
@@ -117,7 +106,9 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
                     }
                 }
                 mqttOptions?.let {
-                    val mqttMessage = Mqtt5Publish.builder().topic(topic).payload(payload.toByteArray()).retain(retain).build()
+                    val mqttMessage =
+                        Mqtt5Publish.builder().topic(topic).payload(payload.toByteArray())
+                            .retain(retain).build()
                     sendMessage(mqttMessage)
                 }
             }
@@ -135,14 +126,17 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
         try {
             mqttOptions = options
             Timber.i("Service Configuration:")
-            Timber.i("Client ID: " + mqttOptions!!.getClientId())
-            Timber.i("Username: " + mqttOptions!!.getUsername())
-            Timber.i("Password: " + mqttOptions!!.getPassword())
-            Timber.i("TslConnect: " + mqttOptions!!.getTlsConnection())
+            Timber.i("Client ID: %s", mqttOptions!!.getClientId())
+            Timber.i("Username: %s", mqttOptions!!.getUsername())
+            Timber.i("Password: %s", mqttOptions!!.getPassword())
+            Timber.i("TslConnect: %s", mqttOptions!!.getTlsConnection())
             Timber.i("MQTT Configuration:")
-            Timber.i("Broker: " + mqttOptions?.brokerUrl)
-            Timber.i("Subscribed to state topics: " + StringUtils.convertArrayToString(mqttOptions!!.getStateTopics()))
-            Timber.i("Publishing to base topic: " + mqttOptions!!.getBaseTopic())
+            Timber.i("Broker: %s", mqttOptions?.brokerUrl)
+            Timber.i(
+                "Subscribed to state topics: %s", mqttOptions!!.getStateTopics()
+                    .convertArrayToString()
+            )
+            Timber.i("Publishing to base topic: %s", mqttOptions!!.getBaseTopic())
             mqttOptions?.let {
                 if (it.isValid) {
                     initializeMqttClient()
@@ -162,18 +156,26 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
     }
 
     @SuppressLint("NewApi")
-    @Throws(Mqtt5MessageException::class, IOException::class, NoSuchAlgorithmException::class, InvalidKeySpecException::class)
+    @Throws(
+        Mqtt5MessageException::class,
+        IOException::class,
+        NoSuchAlgorithmException::class,
+        InvalidKeySpecException::class
+    )
     private fun initializeMqttClient() {
         Timber.d("initializeMqttClient")
         try {
             mqttOptions?.let { mqttOptions ->
 
-                val mqttBuilder = MqttClient.builder().identifier(mqttOptions.getClientId()).serverHost(mqttOptions.getBroker()).serverPort(mqttOptions.getPort())
+                val mqttBuilder = MqttClient.builder().identifier(mqttOptions.getClientId())
+                    .serverHost(mqttOptions.getBroker()).serverPort(mqttOptions.getPort())
                 mqttBuilder.addConnectedListener { context: MqttClientConnectedContext? ->
                     Timber.d("connect to broker completed")
                     subscribeToTopics(mqttOptions.getStateTopics())
 
-                    val onlineMessage = Mqtt5Publish.builder().topic("${mqttOptions.getBaseTopic()}${CONNECTION}").payload(ONLINE.toByteArray()).retain(true).build()
+                    val onlineMessage =
+                        Mqtt5Publish.builder().topic("${mqttOptions.getBaseTopic()}${CONNECTION}")
+                            .payload(ONLINE.toByteArray()).retain(true).build()
                     sendMessage(onlineMessage)
 
                     // TODO: There needs to be a way to handle queues...
@@ -183,12 +185,12 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
                 mqttBuilder.addDisconnectedListener { context: MqttClientDisconnectedContext? ->
                     TypeSwitch.`when`(context!!.cause).`is`(
                         Mqtt5DisconnectException::class.java,
-                        Consumer {disconnectException ->
+                        Consumer { disconnectException ->
                             val disconnect: Mqtt5Disconnect = disconnectException.mqttMessage
                             mReady.set(true)
                             listener?.handleMqttConnected()
                             mqttOptions.let {
-                                Timber.e("Failed to connect to: " + it.brokerUrl + " exception: " + disconnect.reasonString)
+                                Timber.e("Failed to connect to: %s, exception: %s", it.brokerUrl, disconnect.reasonString)
                                 listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
                             }
                         }).`is`(
@@ -198,7 +200,7 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
                             mReady.set(true)
                             listener?.handleMqttConnected()
                             mqttOptions.let {
-                                Timber.e("Failed to connect to: " + it.brokerUrl + " exception: " + disconnect.toString())
+                                Timber.e("Failed to connect to: %s, exception: %s", it.brokerUrl, disconnect.toString())
                                 listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
                             }
                         })
@@ -208,10 +210,13 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
                 mqtt5AsyncClient = mqttBuilder.useMqttVersion5().build().toAsync()
                 val clientConnect = mqtt5AsyncClient!!.connectWith()
                 clientConnect.cleanStart(false)
-                clientConnect.willPublish().topic("${mqttOptions.getBaseTopic()}${CONNECTION}").payload(OFFLINE.toByteArray()).qos(
-                    MqttQos.EXACTLY_ONCE).retain(true).applyWillPublish()
+                clientConnect.willPublish().topic("${mqttOptions.getBaseTopic()}${CONNECTION}")
+                    .payload(OFFLINE.toByteArray()).qos(
+                        MqttQos.EXACTLY_ONCE
+                    ).retain(true).applyWillPublish()
                 if (!TextUtils.isEmpty(mqttOptions.getUsername()) && !TextUtils.isEmpty(mqttOptions.getPassword())) {
-                    clientConnect.simpleAuth().username(mqttOptions.getUsername()).password(mqttOptions.getPassword().toByteArray()).applySimpleAuth()
+                    clientConnect.simpleAuth().username(mqttOptions.getUsername())
+                        .password(mqttOptions.getPassword().toByteArray()).applySimpleAuth()
                 }
                 val isConnected = clientConnect.send()
                 if (isConnected.isDone) {
@@ -220,17 +225,17 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
                 }
             }
         } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
+            Timber.e(e)
         } catch (e: NullPointerException) {
-            e.printStackTrace()
-        }  catch (e: Mqtt5AuthException) {
-            e.printStackTrace()
+            Timber.e(e)
+        } catch (e: Mqtt5AuthException) {
+            Timber.e(e)
             listener?.handleMqttException("Failed to authenticate: " + e.message)
         } catch (e: Mqtt5ConnAckException) {
-            e.printStackTrace()
+            Timber.e(e)
             listener?.handleMqttException("Failed to connect: " + e.message)
         } catch (e: Mqtt5MessageException) {
-            e.printStackTrace()
+            Timber.e(e)
             listener?.handleMqttException("" + e.message)
         }
     }
@@ -244,30 +249,33 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
                     it.publish(mqttMessage)
                     Timber.d("Command Topic: ${mqttMessage.topic} Payload: ${mqttMessage.payload}")
                 } catch (e: NullPointerException) {
-                    Timber.e(e.message)
+                    Timber.e(e)
                 } catch (e: Mqtt5MessageException) {
-                    Timber.e("Error Sending Command: " + e.message)
-                    e.printStackTrace()
+                    Timber.e(e,"Error Sending Command: %s", e.message)                    
                     listener?.handleMqttException("Couldn't send message to the MQTT broker for topic ${mqttMessage.topic}, check the MQTT client settings or your connection to the broker.")
                 }
             }
         }
     }
 
+    //@TargetApi(Build.VERSION_CODES.N)
     private fun subscribeToTopics(topicFilters: Array<String>?) {
         topicFilters?.let {
-            Timber.d("Subscribe to Topics: " + StringUtils.convertArrayToString(topicFilters))
+            Timber.d("Subscribe to Topics: %s", topicFilters.convertArrayToString())
             mqtt5AsyncClient?.let {
                 try {
-                    it.subscribeWith().topicFilter(StringUtils.convertArrayToString(topicFilters)).send()
+                    it.subscribeWith().topicFilter(topicFilters.convertArrayToString()).send()
                     it.publishes(MqttGlobalPublishFilter.ALL) { publish ->
-                        listener?.subscriptionMessage(it.config.clientIdentifier.get().toString(), publish.topic.toString(), UTF_8.decode(publish.payload.get()).toString())
+                        listener?.subscriptionMessage(
+                            it.config.clientIdentifier.get().toString(),
+                            publish.topic.toString(),
+                            Charsets.UTF_8.decode(publish.payload.get()).toString()
+                        )
                     }
                 } catch (e: NullPointerException) {
-                    e.printStackTrace()
-                    Timber.e(e.message)
+                    Timber.e(e)
                 } catch (e: Mqtt5MessageException) {
-                    e.printStackTrace()
+                    Timber.e(e)
                     listener?.handleMqttException("Exception while subscribing: " + e.message)
                 }
             }
@@ -275,8 +283,11 @@ class MQTT5Service(private var context: Context, options: MQTTOptions,
     }
 
     companion object {
-        private val ONLINE = "online"
-        private val OFFLINE = "offline"
-        private val CONNECTION = "connection"
+        private const val ONLINE = "online"
+        private const val OFFLINE = "offline"
+        private const val CONNECTION = "connection"
     }
 }
+
+
+

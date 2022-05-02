@@ -24,11 +24,10 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -69,7 +68,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     var mOnScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = null
     var wallPanelService: Intent? = null
     private var decorView: View? = null
-    private val inactivityHandler: Handler = Handler()
+    private val inactivityHandler: Handler = Handler(Looper.getMainLooper())
     private var userPresent: Boolean = false
     private var hasWakeScreen = false
     var displayProgress = true
@@ -193,7 +192,10 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (configuration.hardwareAccelerated && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+            )
         }
         if (configuration.appPreventSleep) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -259,26 +261,15 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         super.onWindowFocusChanged(hasFocus)
         val visibility: Int
         if (hasFocus && configuration.fullScreen) {
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> visibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_FULLSCREEN
-                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-                else -> {
-                    visibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-                    window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN)
-                }
-            }
+            visibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
             decorView?.systemUiVisibility = visibility
         } else if (hasFocus) {
-            visibility = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        or View.SYSTEM_UI_FLAG_VISIBLE)
-                else -> (View.SYSTEM_UI_FLAG_VISIBLE)
-            }
+            visibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_VISIBLE
             decorView?.systemUiVisibility = visibility
         }
     }
@@ -291,7 +282,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         bm.sendBroadcast(intent)
     }
 
-    internal fun pageLoadComplete(url: String) {
+    fun pageLoadComplete(url: String) {
         Timber.d("pageLoadComplete currentUrl $url")
         val intent = Intent(WallPanelService.BROADCAST_EVENT_URL_CHANGE)
         intent.putExtra(WallPanelService.BROADCAST_EVENT_URL_CHANGE, url)
@@ -340,23 +331,26 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             inactivityHandler.removeCallbacks(inactivityCallback)
             resetScreenBrightness(true)
         } else if ((configuration.hasClockScreenSaver
-                        || configuration.webScreenSaver
-                        || configuration.hasScreenSaverWallpaper
-                        || configuration.hasDimScreenSaver)
-                && !isFinishing) {
+                    || configuration.webScreenSaver
+                    || configuration.hasScreenSaverWallpaper
+                    || configuration.hasDimScreenSaver)
+            && !isFinishing
+        ) {
             inactivityHandler.removeCallbacks(inactivityCallback)
-            dialogUtils.showScreenSaver(this@BaseBrowserActivity,
-                    {
-                        dialogUtils.hideScreenSaverDialog()
-                        resetScreenBrightness(false)
-                        resetInactivityTimer()
-                    },
-                    configuration.webScreenSaver,
-                    configuration.webScreenSaverUrl,
-                    configuration.hasScreenSaverWallpaper,
-                    configuration.hasClockScreenSaver,
-                    configuration.imageRotation.toLong(),
-                    configuration.appPreventSleep)
+            dialogUtils.showScreenSaver(
+                this@BaseBrowserActivity,
+                {
+                    dialogUtils.hideScreenSaverDialog()
+                    resetScreenBrightness(false)
+                    resetInactivityTimer()
+                },
+                configuration.webScreenSaver,
+                configuration.webScreenSaverUrl,
+                configuration.hasScreenSaverWallpaper,
+                configuration.hasClockScreenSaver,
+                configuration.imageRotation.toLong(),
+                configuration.appPreventSleep
+            )
             resetScreenBrightness(true)
         }
     }

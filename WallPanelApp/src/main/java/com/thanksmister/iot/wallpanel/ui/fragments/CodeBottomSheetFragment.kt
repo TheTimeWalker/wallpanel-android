@@ -29,6 +29,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.thanksmister.iot.wallpanel.R
+import com.thanksmister.iot.wallpanel.databinding.FragmentCodeBottomSheetBinding
 import kotlinx.android.synthetic.main.fragment_code_bottom_sheet.*
 import kotlinx.android.synthetic.main.view_keypad.*
 
@@ -36,6 +37,7 @@ class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentLis
 
     private var codeComplete = false
     private var enteredCode = ""
+    private lateinit var binding: FragmentCodeBottomSheetBinding
     private val handler: Handler by lazy {
         Handler()
     }
@@ -103,7 +105,8 @@ class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentLis
             override fun onGlobalLayout() {
                 view.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 val dialog = dialog as BottomSheetDialog
-                val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout?
+                val bottomSheetResId = com.google.android.material.R.id.design_bottom_sheet
+                val bottomSheet = dialog.findViewById<View>(bottomSheetResId) as FrameLayout?
                 val behavior = BottomSheetBehavior.from(bottomSheet!!)
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
@@ -112,7 +115,12 @@ class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentLis
 
     @Nullable
     override fun onCreateView(@NonNull inflater: LayoutInflater, @Nullable container: ViewGroup?, @Nullable savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_code_bottom_sheet, container, false)
+        binding = FragmentCodeBottomSheetBinding.inflate(
+            inflater,
+            container,
+            false
+        )
+        return binding.root
     }
 
     private fun onCancel() {
