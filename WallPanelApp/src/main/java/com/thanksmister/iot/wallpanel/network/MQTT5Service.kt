@@ -258,7 +258,7 @@ class MQTT5Service(
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
+    //@TargetApi(Build.VERSION_CODES.N)
     private fun subscribeToTopics(topicFilters: Array<String>?) {
         topicFilters?.let {
             Timber.d("Subscribe to Topics: %s", topicFilters.convertArrayToString())
@@ -283,9 +283,9 @@ class MQTT5Service(
     }
 
     companion object {
-        private val ONLINE = "online"
-        private val OFFLINE = "offline"
-        private val CONNECTION = "connection"
+        private const val ONLINE = "online"
+        private const val OFFLINE = "offline"
+        private const val CONNECTION = "connection"
     }
 }
 
