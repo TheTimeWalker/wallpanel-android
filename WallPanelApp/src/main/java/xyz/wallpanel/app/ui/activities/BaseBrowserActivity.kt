@@ -143,7 +143,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
 
         displayProgress = configuration.appShowActivity

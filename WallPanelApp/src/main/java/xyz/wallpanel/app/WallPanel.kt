@@ -18,14 +18,13 @@ package xyz.wallpanel.app
 
 import android.content.Context
 import androidx.multidex.MultiDex
-import com.google.firebase.FirebaseApp
-import com.google.firebase.analytics.FirebaseAnalytics
-import xyz.wallpanel.app.BuildConfig
-import xyz.wallpanel.app.di.DaggerApplicationComponent
-import xyz.wallpanel.app.utils.LauncherShortcuts
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import timber.log.Timber
+import xyz.wallpanel.app.di.DaggerApplicationComponent
+import xyz.wallpanel.app.utils.CrashlyticsDebugTree
+import xyz.wallpanel.app.utils.LauncherShortcuts
+import xyz.wallpanel.app.utils.WallpanelDebugTree
 
 class WallPanel : DaggerApplication() {
 
@@ -37,11 +36,13 @@ class WallPanel : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
+            Timber.plant(WallpanelDebugTree())
+//            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashlyticsDebugTree())
+//            Timber.plant(CrashlyticsTree())
         }
         LauncherShortcuts.createShortcuts(this)
-        FirebaseApp.initializeApp(applicationContext)
-        FirebaseAnalytics.getInstance(applicationContext)
     }
 
     override fun attachBaseContext(base: Context) {
