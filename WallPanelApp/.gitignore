@@ -18,3 +18,10 @@ npm-debug.log
 
 #Fabric
 crashlytics.properties
+
+# Keystore files
+# Uncomment the following lines if you do not want to check your keystore files in.
+/keystore
+*.jks
+*.keystore
+keystore.gradle
