@@ -33,6 +33,10 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleObserver
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.crashlytics.ktx.setCustomKeys
+import com.google.firebase.ktx.Firebase
 import xyz.wallpanel.app.databinding.ActivityBrowserBinding
 import xyz.wallpanel.app.network.ConnectionLiveData
 import xyz.wallpanel.app.ui.fragments.CodeBottomSheetFragment
@@ -50,6 +54,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
 
     private lateinit var webView: WebView
     private lateinit var binding: ActivityBrowserBinding
+    private lateinit var crashlytics: FirebaseCrashlytics
     private var certPermissionsShown = false
     private var playlistHandler: Handler? = null
     private var codeBottomSheet: CodeBottomSheetFragment? = null
@@ -121,18 +126,43 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         configureWebView(binding.root)
         initWebPageLoad()
 
+        //crashlyticsDebugging()
+    }
+
+    private fun crashlyticsDebugging(){
+        crashlytics = Firebase.crashlytics
+        // Log the onCreate event, this will also be printed in logcat
+        crashlytics.log("crashlyticsDebugging")
+        // Add some custom values and identifiers to be included in crash reports
+        crashlytics.setCustomKeys {
+            key("MeaningOfLife", 42)
+            key("LastUIAction", "Test value")
+        }
+        crashlytics.setUserId("123456789")
+
         val crashButton = Button(this)
         crashButton.text = "Test Crash"
         crashButton.setOnClickListener {
-            throw RuntimeException("Test Crash") // Force a crash
+            val throwNPE = false
+            if (throwNPE) {
+                try {
+                    throw NullPointerException()
+                } catch (ex: NullPointerException) {
+                    crashlytics.log("NPE caught!")
+                    crashlytics.recordException(ex)
+                }
+            } else {
+                crashlytics.log("RuntimeException caught!")
+                throw RuntimeException("Test Crash") // Force a crash
+            }
         }
+        val layoutParams = CoordinatorLayout.LayoutParams(
+            500,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        addContentView(crashButton, layoutParams)
 
-        addContentView(crashButton, ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT))
     }
-
-
 
     override fun onStart() {
         super.onStart()
