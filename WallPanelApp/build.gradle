@@ -18,9 +18,23 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+
+/*
+plugins {
+    id 'com.android.application'
+    id 'com.github.sgtsilvio.gradle.android-retrofix'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    //id 'androidx.navigation.safeargs.kotlin'
+    id 'kotlin-kapt' // Allows for Kotlin annotation processors
+    //id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
+}
+*/
 
 
 def versionMajor = 0

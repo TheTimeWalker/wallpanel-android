@@ -81,6 +81,7 @@
     </LinearLayout>
 
     <include
+        android:id="@+id/keyPad"
         layout="@layout/view_keypad"
         android:layout_width="match_parent"
         android:layout_height="340dp" />

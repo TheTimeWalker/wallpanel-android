@@ -32,8 +32,6 @@ import xyz.wallpanel.app.R
 import xyz.wallpanel.app.databinding.DialogCodeSetBinding
 import xyz.wallpanel.app.databinding.DialogScreenSaverBinding
 import xyz.wallpanel.app.ui.views.SettingsCodeView
-import kotlinx.android.synthetic.main.dialog_code_set.view.*
-import kotlinx.android.synthetic.main.dialog_screen_saver.view.*
 import timber.log.Timber
 
 /**
@@ -147,17 +145,15 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         clearDialogs()
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val binding = DialogCodeSetBinding.inflate(inflater, null, false)
-        //val view = inflater.inflate(R.layout.dialog_code_set, null, false)
-        val view = binding.root
-        val titleTextView = view.alarmCodeView.codeTitle
+
         if (confirmCode) {
-            titleTextView.text = getString(R.string.text_confirm_code)
+            binding.codeTitle.text = getString(R.string.text_confirm_code)
         } else {
-            titleTextView.text = getString(R.string.text_enter_new_code)
+            binding.codeTitle.text = getString(R.string.text_enter_new_code)
         }
-        view.alarmCodeView.setListener(listener)
+        binding.alarmCodeView.setListener(listener)
         dialog = Dialog(context, R.style.CustomAlertDialog)
-        dialog?.setContentView(view)
+        dialog?.setContentView(binding.root)
         dialog?.setOnCancelListener(onCancelListener)
         dialog?.show()
     }
@@ -179,9 +175,7 @@ class DialogUtils(base: Context?) : ContextWrapper(base), LifecycleObserver {
         clearDialogs() // clear any alert dialogs
         val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val binding = DialogScreenSaverBinding.inflate(inflater, null, false)
-        //val view = inflater.inflate(R.layout.dialog_screen_saver, null, false)
-        val view = binding.root
-        val screenSaverView = view.screenSaverView
+        val screenSaverView = binding.screenSaverView
         screenSaverView.setOnClickListener(onClickListener)
         screenSaverView.init(hasWeb, webUrl, hasWallpaper, hasClock, rotationInterval)
         screenSaverDialog = buildImmersiveDialog(activity, true, screenSaverView, true)

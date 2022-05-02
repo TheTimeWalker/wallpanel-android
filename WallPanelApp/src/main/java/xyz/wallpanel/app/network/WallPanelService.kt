@@ -102,11 +102,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var audioPlayerBusy: Boolean = false
     private var httpServer: AsyncHttpServer? = null
     private val mBinder = WallPanelServiceBinder()
-    private val motionClearHandler = Handler()
-    private val appStateClearHandler = Handler()
-    private val qrCodeClearHandler = Handler()
-    private val faceClearHandler = Handler()
-    private val wakeScreenHandler = Handler()
+    private val motionClearHandler = Handler(Looper.getMainLooper())
+    private val appStateClearHandler = Handler(Looper.getMainLooper())
+    private val qrCodeClearHandler = Handler(Looper.getMainLooper())
+    private val faceClearHandler = Handler(Looper.getMainLooper())
+    private val wakeScreenHandler = Handler(Looper.getMainLooper())
     private var textToSpeechModule: TextToSpeechModule? = null
     private var mqttModule: MQTTModule? = null
     private var connectionLiveData: ConnectionLiveData? = null
@@ -115,7 +115,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var appStatePublished: Boolean = false
     private var qrCodeRead: Boolean = false
     private var faceDetected: Boolean = false
-    private val reconnectHandler = Handler()
+    private val reconnectHandler = Handler(Looper.getMainLooper())
     private var appLaunchUrl: String? = null
     private var localBroadCastManager: LocalBroadcastManager? = null
     private var mqttAlertMessageShown = false

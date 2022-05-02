@@ -18,6 +18,7 @@ package xyz.wallpanel.app.ui.fragments
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,8 +31,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import xyz.wallpanel.app.R
 import xyz.wallpanel.app.databinding.FragmentCodeBottomSheetBinding
-import kotlinx.android.synthetic.main.fragment_code_bottom_sheet.*
-import kotlinx.android.synthetic.main.view_keypad.*
 
 class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentListener) : BottomSheetDialogFragment() {
 
@@ -39,7 +38,7 @@ class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentLis
     private var enteredCode = ""
     private lateinit var binding: FragmentCodeBottomSheetBinding
     private val handler: Handler by lazy {
-        Handler()
+        Handler(Looper.getMainLooper())
     }
 
     private val delayRunnable = object : Runnable {
@@ -61,43 +60,43 @@ class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentLis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        closeCodeButton.setOnClickListener {
+        binding.closeCodeButton.setOnClickListener {
             onCancel()
         }
-        button0.setOnClickListener {
+        binding.include.button0.setOnClickListener {
             addPinCode("0")
         }
-        button1.setOnClickListener {
+        binding.include.button1.setOnClickListener {
             addPinCode("1")
         }
-        button2.setOnClickListener {
+        binding.include.button2.setOnClickListener {
             addPinCode("2")
         }
-        button3.setOnClickListener {
+        binding.include.button3.setOnClickListener {
             addPinCode("3")
         }
-        button4.setOnClickListener {
+        binding.include.button4.setOnClickListener {
             addPinCode("4")
         }
-        button5.setOnClickListener {
+        binding.include.button5.setOnClickListener {
             addPinCode("5")
         }
-        button6.setOnClickListener {
+        binding.include.button6.setOnClickListener {
             addPinCode("6")
         }
-        button7.setOnClickListener {
+        binding.include.button7.setOnClickListener {
             addPinCode("7")
         }
-        button8.setOnClickListener {
+        binding.include.button8.setOnClickListener {
             addPinCode("8")
         }
-        button9.setOnClickListener {
+        binding.include.button9.setOnClickListener {
             addPinCode("9")
         }
-        buttonDel.setOnClickListener {
+        binding.include.buttonDel.setOnClickListener {
             removePinCode()
         }
-        buttonDel.setOnClickListener {
+        binding.include.buttonDel.setOnClickListener {
             removePinCode()
         }
 
@@ -168,37 +167,37 @@ class CodeBottomSheetFragment (private val alarmListener: OnAlarmCodeFragmentLis
     }
 
     private fun showFilledPins(pinsShown: Int) {
-        if (pinCode1 != null && pinCode2 != null && pinCode3 != null && pinCode4 != null) {
+        if (binding.pinCode1 != null && binding.pinCode2 != null && binding.pinCode3 != null && binding.pinCode4 != null) {
             when (pinsShown) {
                 1 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
                 }
                 2 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
                 }
                 3 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
                 }
                 4 -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode1.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode2.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode3.setImageResource(R.drawable.ic_radio_button_checked_black)
+                    binding.pinCode4.setImageResource(R.drawable.ic_radio_button_checked_black)
                 }
                 else -> {
-                    pinCode1.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
-                    pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode1.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode2.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode3.setImageResource(R.drawable.ic_radio_button_unchecked_black)
+                    binding.pinCode4.setImageResource(R.drawable.ic_radio_button_unchecked_black)
                 }
             }
         }

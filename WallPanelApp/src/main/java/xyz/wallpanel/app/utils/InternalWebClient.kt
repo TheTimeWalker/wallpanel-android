@@ -68,11 +68,11 @@ open class InternalWebClient(val resources: Resources, private val callback: Web
                 resources.getString(R.string.dialog_title_ssl_error),
                 resources.getString(R.string.dialog_message_ssl_continue),
                 resources.getString(R.string.button_continue),
-                { _, which -> handler?.proceed() },
-                { _, which -> handler?.proceed() }
+                { _, _ -> handler.proceed() },
+                { _, _ -> handler.proceed() }
             )
         } else {
-            handler?.proceed()
+            handler.proceed()
         }
     }
 

@@ -23,6 +23,7 @@ import android.graphics.Matrix
 import android.hardware.Camera
 import android.os.AsyncTask
 import android.os.Handler
+import android.os.Looper
 import android.renderscript.*
 import android.view.Surface
 import android.view.WindowManager
@@ -64,7 +65,7 @@ constructor(private val context: Context) {
     private var byteArrayCreateTask: ByteArrayTask? = null
     private var cameraOrientation: Int = 0
     private var cameraPreview: CameraSourcePreview? = null
-    private val bitmapCompleteHandler = Handler()
+    private val bitmapCompleteHandler = Handler(Looper.getMainLooper())
     private val bitcoinCompleteRunnable = Runnable { bitmapComplete = true }
 
     fun getJpeg(): LiveData<ByteArray> {
