@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
-apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-//apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
-
-/*
 plugins {
     id 'com.android.application'
     id 'com.github.sgtsilvio.gradle.android-retrofix'
     id 'kotlin-android'
     id 'kotlin-parcelize'
-    //id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-kapt' // Allows for Kotlin annotation processors
+    //id 'androidx.navigation.safeargs.kotlin'
     //id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
-*/
+
 
 
 def versionMajor = 0
@@ -45,31 +36,31 @@ def versionBuild = 1 // bump for dog food builds, public betas, etc.
 def CODE() {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    return properties.getProperty("code");
+    return properties.getProperty("code")
 }
 
 def HASS_URL() {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    return properties.getProperty("hassUrl");
+    return properties.getProperty("hassUrl")
 }
 
 def BROKER() {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    return properties.getProperty("broker");
+    return properties.getProperty("broker")
 }
 
 def BROKER_PASS() {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    return properties.getProperty("brokerPass");
+    return properties.getProperty("brokerPass")
 }
 
 def BROKER_USERNAME() {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    return properties.getProperty("brokerUsername");
+    return properties.getProperty("brokerUsername")
 }
 
 android {
@@ -139,8 +130,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     packagingOptions {
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/io.netty.versions.properties'
+        resources {
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/io.netty.versions.properties']
+        }
     }
 }
 
@@ -200,23 +192,28 @@ dependencies {
     // Logging
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:28.4.0')
-
-    // Declare the dependencies for the Crashlytics and Analytics libraries
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx'
-
-    // Firebase
-    implementation 'com.google.firebase:firebase-core:20.1.2'
-
     // Picasso image loading
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     // Glide for image loading
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    //  _____ _          _
+    // |  ___(_)_ __ ___| |__   __ _ ___  ___
+    // | |_  | | '__/ _ \ '_ \ / _` / __|/ _ \
+    // |  _| | | | |  __/ |_) | (_| \__ \  __/
+    // |_|   |_|_|  \___|_.__/ \__,_|___/\___|
+    //
+    implementation 'com.google.firebase:firebase-core:20.1.2'
+
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:29.3.1')
+
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
     // Unit tests
     testImplementation 'junit:junit:4.+'
