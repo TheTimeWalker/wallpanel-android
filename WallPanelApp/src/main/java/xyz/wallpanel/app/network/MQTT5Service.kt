@@ -62,7 +62,6 @@ class MQTT5Service(
     @Throws(Mqtt5MessageException::class)
     override fun close() {
         Timber.d("close")
-
         mqtt5AsyncClient?.let {
 
             mqttOptions?.let {
@@ -71,7 +70,6 @@ class MQTT5Service(
                         .payload(OFFLINE.toByteArray()).retain(true).build()
                 sendMessage(offlineMessage)
             }
-
             mqtt5AsyncClient = null
             listener = null
             mqttOptions = null
@@ -188,7 +186,11 @@ class MQTT5Service(
                             mReady.set(true)
                             listener?.handleMqttConnected()
                             mqttOptions.let {
-                                Timber.e("Failed to connect to: %s, exception: %s", it.brokerUrl, disconnect.reasonString)
+                                Timber.e(
+                                    "Failed to connect to: %s, exception: %s",
+                                    it.brokerUrl,
+                                    disconnect.reasonString
+                                )
                                 listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
                             }
                         }).`is`(
@@ -198,13 +200,15 @@ class MQTT5Service(
                             mReady.set(true)
                             listener?.handleMqttConnected()
                             mqttOptions.let {
-                                Timber.e("Failed to connect to: %s, exception: %s", it.brokerUrl, disconnect.toString())
+                                Timber.e(
+                                    "Failed to connect to: %s, exception: %s",
+                                    it.brokerUrl,
+                                    disconnect.toString()
+                                )
                                 listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
                             }
                         })
-
                 }
-
                 mqtt5AsyncClient = mqttBuilder.useMqttVersion5().build().toAsync()
                 val clientConnect = mqtt5AsyncClient!!.connectWith()
                 clientConnect.cleanStart(false)
@@ -249,7 +253,7 @@ class MQTT5Service(
                 } catch (e: NullPointerException) {
                     Timber.e(e)
                 } catch (e: Mqtt5MessageException) {
-                    Timber.e(e,"Error Sending Command: %s", e.message)                    
+                    Timber.e(e, "Error Sending Command: %s", e.message)
                     listener?.handleMqttException("Couldn't send message to the MQTT broker for topic ${mqttMessage.topic}, check the MQTT client settings or your connection to the broker.")
                 }
             }

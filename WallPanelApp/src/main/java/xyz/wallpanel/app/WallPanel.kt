@@ -43,11 +43,12 @@ class WallPanel : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
+            // Gives clickable links to the issue in the Android Studio Logcat
             Timber.plant(WallpanelDebugTree())
-//            Timber.plant(Timber.DebugTree())
+            // Timber.plant(Timber.DebugTree())
         } else {
             Timber.plant(CrashlyticsDebugTree())
-//            Timber.plant(CrashlyticsTree())
+            // Timber.plant(CrashlyticsTree())
         }
         strictMode()
         LauncherShortcuts.createShortcuts(this)

@@ -54,7 +54,6 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
 
     private lateinit var webView: WebView
     private lateinit var binding: ActivityBrowserBinding
-    private lateinit var crashlytics: FirebaseCrashlytics
     private var certPermissionsShown = false
     private var playlistHandler: Handler? = null
     private var codeBottomSheet: CodeBottomSheetFragment? = null
@@ -125,43 +124,6 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         configureConnection()
         configureWebView(binding.root)
         initWebPageLoad()
-
-        //crashlyticsDebugging()
-    }
-
-    private fun crashlyticsDebugging(){
-        crashlytics = Firebase.crashlytics
-        // Log the onCreate event, this will also be printed in logcat
-        crashlytics.log("crashlyticsDebugging")
-        // Add some custom values and identifiers to be included in crash reports
-        crashlytics.setCustomKeys {
-            key("MeaningOfLife", 42)
-            key("LastUIAction", "Test value")
-        }
-        crashlytics.setUserId("123456789")
-
-        val crashButton = Button(this)
-        crashButton.text = "Test Crash"
-        crashButton.setOnClickListener {
-            val throwNPE = false
-            if (throwNPE) {
-                try {
-                    throw NullPointerException()
-                } catch (ex: NullPointerException) {
-                    crashlytics.log("NPE caught!")
-                    crashlytics.recordException(ex)
-                }
-            } else {
-                crashlytics.log("RuntimeException caught!")
-                throw RuntimeException("Test Crash") // Force a crash
-            }
-        }
-        val layoutParams = CoordinatorLayout.LayoutParams(
-            500,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        addContentView(crashButton, layoutParams)
-
     }
 
     override fun onStart() {
@@ -311,7 +273,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         ) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                // Show an expansion to the user *asynchronously* -- don't block
+                // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
             } else {
