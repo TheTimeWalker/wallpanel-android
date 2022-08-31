@@ -15,11 +15,8 @@ import xyz.wallpanel.app.ui.views.WebClientCallback
 import timber.log.Timber
 import javax.inject.Inject
 
-open class InternalWebClient(val resources: Resources, private val callback: WebClientCallback) :
+open class InternalWebClient(val resources: Resources, private val callback: WebClientCallback, val configuration: Configuration) :
     WebViewClient() {
-
-    @Inject
-    lateinit var configuration: Configuration
 
     @Inject
     lateinit var dialogUtils: DialogUtils
