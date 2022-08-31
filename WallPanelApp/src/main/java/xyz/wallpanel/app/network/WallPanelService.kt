@@ -762,12 +762,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
-    private fun publishApplicationState() {
+    private fun publishApplicationState(delay: Int = 300) {
         if (!appStatePublished) {
-            val delay = (3000).toLong()
             appStatePublished = true
             publishCommand(COMMAND_STATE, state)
-            appStateClearHandler.postDelayed({ clearPublishApplicationState() }, delay)
+            appStateClearHandler.postDelayed({ clearPublishApplicationState() }, delay.toLong())
         }
     }
 
@@ -1006,7 +1005,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 publishApplicationState()
             } else if (BROADCAST_EVENT_SCREEN_TOUCH == intent.action) {
                 Timber.i("Screen touched")
-                publishApplicationState()
+                //TODO: This overrides URL Change. Do we really need this?
+                //publishApplicationState()
             }
         }
     }

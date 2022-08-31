@@ -2,17 +2,19 @@ package xyz.wallpanel.app.utils
 
 import android.annotation.TargetApi
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Build
-import xyz.wallpanel.app.persistence.Configuration
 import android.view.ViewGroup
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.SslErrorHandler
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import xyz.wallpanel.app.R
-import xyz.wallpanel.app.ui.views.WebClientCallback
 import timber.log.Timber
+import xyz.wallpanel.app.R
+import xyz.wallpanel.app.persistence.Configuration
+import xyz.wallpanel.app.ui.views.WebClientCallback
+import java.util.*
 import javax.inject.Inject
 
 open class InternalWebClient(val resources: Resources, private val callback: WebClientCallback, val configuration: Configuration) :
@@ -21,11 +23,28 @@ open class InternalWebClient(val resources: Resources, private val callback: Web
     @Inject
     lateinit var dialogUtils: DialogUtils
 
-    private var isRedirect = false
+    private var pageLoaded = false
+    private var currentUrl = ""
+
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        isRedirect = true
-        view.loadUrl(url)
-        return true
+        if (!currentUrl.equals(url, ignoreCase = true)){
+            currentUrl = url;
+            view.loadUrl(currentUrl);
+        }
+        return true;
+    }
+
+    open fun isCurrentUrl(url: String): Boolean {
+        return url.lowercase(Locale.getDefault()).contains(currentUrl.lowercase())
+    }
+
+    override fun onPageStarted(
+        webView: WebView?, url: String,
+        bitmap: Bitmap?
+    ) {
+        if (isCurrentUrl(url)) {
+            pageLoaded = false
+        }
     }
 
     // TODO load a special file here on disconnect and then reload page on timer
@@ -73,13 +92,17 @@ open class InternalWebClient(val resources: Resources, private val callback: Web
         }
     }
 
+    override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
+        callback.pageLoadComplete(view.url.toString())
+        super.doUpdateVisitedHistory(view, url, isReload)
+    }
+
     override fun onPageFinished(view: WebView, url: String) {
         if (callback.isConnected) {
             callback.stopReloadDelay()
         }
-        if (isRedirect) {
-            isRedirect = false
-            return
+        if (isCurrentUrl(url)) {
+            pageLoaded = true
         }
     }
 

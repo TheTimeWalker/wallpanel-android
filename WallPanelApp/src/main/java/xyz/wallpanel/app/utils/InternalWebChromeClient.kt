@@ -23,7 +23,7 @@ class InternalWebChromeClient(val resources: Resources, val callback: WebClientC
         if (newProgress == 100) {
             snackbar?.dismiss()
             if (view.url != null) {
-                callback.pageLoadComplete(view.url.toString())
+
             } else {
                 Toast.makeText(
                     view.context,
