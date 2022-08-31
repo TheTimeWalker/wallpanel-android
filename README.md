@@ -12,7 +12,7 @@ WallPanel is an Android application for Web Based Dashboards and Home Automation
 
 ## Support
 
-For issues, feature requests, use the [Github issues tracker](https://github.com/thetimewalker/wallpanel-android/issues). For examples and to learn how to use each feature, vist the new [WallPanel Wiki](https://github.com/thetimewalker/wallpanel-android/wiki).
+For issues, feature requests, use the [Github issues tracker](https://github.com/thetimewalker/wallpanel-android/issues). For examples and to learn how to use each feature, visit [WallPanel Documentation](https://wallpanel.xyz/).
 
 ### Common Issues
 
