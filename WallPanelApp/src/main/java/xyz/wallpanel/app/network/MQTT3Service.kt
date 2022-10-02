@@ -30,9 +30,6 @@ import com.hivemq.client.mqtt.mqtt3.exceptions.Mqtt3DisconnectException
 import com.hivemq.client.mqtt.mqtt3.exceptions.Mqtt3MessageException
 import com.hivemq.client.mqtt.mqtt3.message.disconnect.Mqtt3Disconnect
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
-import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5DisconnectException
-import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5MessageException
-import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5Disconnect
 import com.hivemq.client.util.TypeSwitch
 import xyz.wallpanel.app.R
 import xyz.wallpanel.app.ext.convertArrayToString
@@ -66,7 +63,7 @@ class MQTT3Service(
     ) {
         try {
             close()
-        } catch (e: Mqtt5MessageException) {
+        } catch (e: Mqtt3MessageException) {
             // empty
         }
         this.listener = listener
@@ -100,27 +97,6 @@ class MQTT3Service(
     override fun publish(topic: String, payload: String, retain: Boolean) {
         try {
             if (isReady) {
-                mqtt3AsyncClient?.let {
-                    if (!it.state.isConnected) {
-                        // if for some reason the mqtt client has disconnected, we should try to connect
-                        // it again.
-                        try {
-                            initializeMqttClient()
-                        } catch (e: Mqtt3MessageException) {
-                            if (listener != null) {
-                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
-                            }
-                        } catch (e: IOException) {
-                            if (listener != null) {
-                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
-                            }
-                        } catch (e: GeneralSecurityException) {
-                            if (listener != null) {
-                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
-                            }
-                        }
-                    }
-                }
                 mqttOptions?.let {
                     val mqttMessage =
                         Mqtt3Publish.builder().topic(topic).payload(payload.toByteArray())
@@ -197,21 +173,11 @@ class MQTT3Service(
                 }
                 mqttBuilder.addDisconnectedListener { context: MqttClientDisconnectedContext? ->
                     TypeSwitch.`when`(context!!.cause).`is`(
-                        Mqtt5DisconnectException::class.java,
-                        Consumer { disconnectException ->
-                            val disconnect: Mqtt5Disconnect = disconnectException.mqttMessage
-                            mReady.set(true)
-                            listener?.handleMqttConnected()
-                            mqttOptions.let {
-                                Timber.e("Failed to connect to: %s, exception: %s",  it.brokerUrl, disconnect.reasonString)
-                                listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
-                            }
-                        }).`is`(
                         Mqtt3DisconnectException::class.java,
                         Consumer { disconnectException ->
                             val disconnect: Mqtt3Disconnect = disconnectException.mqttMessage
-                            mReady.set(true)
-                            listener?.handleMqttConnected()
+                            mReady.set(false)
+                            listener?.handleMqttDisconnected()
                             mqttOptions.let {
                                 Timber.e("Failed to connect to: %s, exception: %s", it.brokerUrl, disconnect.toString())
                                 listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
