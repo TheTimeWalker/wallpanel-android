@@ -23,9 +23,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.hardware.display.DisplayManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
+import android.view.Display
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
@@ -37,6 +39,10 @@ import com.koushikdutta.async.http.body.StringBody
 import com.koushikdutta.async.http.server.AsyncHttpServer
 import com.koushikdutta.async.http.server.AsyncHttpServerResponse
 import com.koushikdutta.async.util.Charsets
+import dagger.android.AndroidInjection
+import org.json.JSONException
+import org.json.JSONObject
+import timber.log.Timber
 import xyz.wallpanel.app.R
 import xyz.wallpanel.app.modules.*
 import xyz.wallpanel.app.persistence.Configuration
@@ -67,15 +73,12 @@ import xyz.wallpanel.app.utils.MqttUtils.Companion.COMMAND_WAKETIME
 import xyz.wallpanel.app.utils.MqttUtils.Companion.VALUE
 import xyz.wallpanel.app.utils.NotificationUtils
 import xyz.wallpanel.app.utils.ScreenUtils
-import dagger.android.AndroidInjection
-import org.json.JSONException
-import org.json.JSONObject
-import timber.log.Timber
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+
 
 // TODO move this to internal class within application, no longer run as service
 class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
@@ -119,7 +122,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private var appLaunchUrl: String? = null
     private var localBroadCastManager: LocalBroadcastManager? = null
     private var mqttAlertMessageShown = false
-    private var mqttConnected = false
     private var mqttConnecting = false
     private var mqttInitConnection = AtomicBoolean(true)
 
@@ -127,10 +129,8 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         clearAlertMessage() // clear any dialogs
         mqttAlertMessageShown = false
         mqttConnecting = false
-        if (!mqttConnected) {
-            //sendToastMessage(getString(R.string.toast_connect_retry))
-            mqttModule?.restart()
-        }
+        //sendToastMessage(getString(R.string.toast_connect_retry))
+        mqttModule?.restart()
     }
 
     inner class WallPanelServiceBinder : Binder() {
@@ -203,7 +203,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         sensorReader.stopReadings()
         stopHttp()
         stopPowerOptions()
-        reconnectHandler.removeCallbacks(restartMqttRunnable)
+        reconnectHandler.removeCallbacksAndMessages(null)
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -213,8 +213,18 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private val isScreenOn: Boolean
         get() {
-            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH && powerManager.isInteractive || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && powerManager.isScreenOn
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH){
+                val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                return powerManager.isInteractive
+            }
+            else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH){
+                val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+                for (display in displayManager.displays){
+                    return display.state != Display.STATE_OFF
+                }
+                return false
+            }
+            return false
         }
 
     private val state: JSONObject
@@ -262,7 +272,6 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     private fun handleNetworkDisconnect() {
         mqttModule?.let {
             if (hasNetwork()) {
-                mqttConnected = false
                 it.pause()
             }
         }
@@ -333,21 +342,20 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         if (configuration.mqttDiscovery) {
             publishDiscovery()
         }
-        mqttConnected = true
         mqttInitConnection.set(false)
     }
 
     override fun onMQTTDisconnect() {
         Timber.e("onMQTTDisconnect")
-        handleMQTDisconnectError()
+        handleMQTTDisconnected()
     }
 
     override fun onMQTTException(message: String) {
         Timber.e("onMQTTException: $message")
-        handleMQTDisconnectError()
+        handleMQTTDisconnected()
     }
 
-    private fun handleMQTDisconnectError() {
+    private fun handleMQTTDisconnected() {
         if (hasNetwork()) {
             if (mqttInitConnection.get()) {
                 mqttInitConnection.set(false)
@@ -355,6 +363,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
                 mqttAlertMessageShown = true
             }
             if (!mqttConnecting) {
+                reconnectHandler.removeCallbacksAndMessages(null)
                 reconnectHandler.postDelayed(restartMqttRunnable, 30000)
                 mqttConnecting = true
             }
