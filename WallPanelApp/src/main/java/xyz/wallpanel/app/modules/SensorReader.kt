@@ -52,6 +52,7 @@ constructor(private val context: Context){
             if (updateFrequencyMilliSeconds > 0) {
                 Timber.d("Updating Battery")
                 getBatteryReading()
+                batteryHandler.removeCallbacksAndMessages(null)
                 batteryHandler.postDelayed(this, updateFrequencyMilliSeconds.toLong())
                 sensorsPublished = false
             }
@@ -76,12 +77,14 @@ constructor(private val context: Context){
         this.callback = callback
         if (freqSeconds >= 0) {
             updateFrequencyMilliSeconds = 1000 * freqSeconds
+            batteryHandler.removeCallbacksAndMessages(null)
             batteryHandler.postDelayed(batteryHandlerRunnable, updateFrequencyMilliSeconds.toLong())
             startSensorReadings()
         }
     }
 
     fun refreshSensors() {
+        batteryHandler.removeCallbacksAndMessages(null)
         batteryHandler.post(batteryHandlerRunnable)
         stopSensorReading()
         startSensorReadings()
@@ -89,7 +92,7 @@ constructor(private val context: Context){
 
     fun stopReadings() {
         Timber.d("stopReadings")
-        batteryHandler.removeCallbacksAndMessages(batteryHandlerRunnable)
+        batteryHandler.removeCallbacksAndMessages(null)
         updateFrequencyMilliSeconds = 0
         stopSensorReading()
     }
