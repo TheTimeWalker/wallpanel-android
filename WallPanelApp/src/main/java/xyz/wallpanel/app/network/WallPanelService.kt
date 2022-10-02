@@ -213,11 +213,11 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private val isScreenOn: Boolean
         get() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH){
                 val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-                return powerManager.isInteractive
+                return powerManager.isScreenOn
             }
-            else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH){
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH){
                 val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
                 for (display in displayManager.displays){
                     return display.state != Display.STATE_OFF
