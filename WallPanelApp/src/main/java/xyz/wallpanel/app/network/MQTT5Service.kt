@@ -8,8 +8,6 @@ import com.hivemq.client.mqtt.MqttGlobalPublishFilter
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedContext
 import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext
-import com.hivemq.client.mqtt.mqtt3.exceptions.Mqtt3DisconnectException
-import com.hivemq.client.mqtt.mqtt3.message.disconnect.Mqtt3Disconnect
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5AuthException
 import com.hivemq.client.mqtt.mqtt5.exceptions.Mqtt5ConnAckException
@@ -80,27 +78,6 @@ class MQTT5Service(
     override fun publish(topic: String, payload: String, retain: Boolean) {
         try {
             if (isReady) {
-                mqtt5AsyncClient?.let {
-                    if (!it.state.isConnected) {
-                        // if for some reason the mqtt client has disconnected, we should try to connect
-                        // it again.
-                        try {
-                            initializeMqttClient()
-                        } catch (e: Mqtt5MessageException) {
-                            if (listener != null) {
-                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
-                            }
-                        } catch (e: IOException) {
-                            if (listener != null) {
-                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
-                            }
-                        } catch (e: GeneralSecurityException) {
-                            if (listener != null) {
-                                listener!!.handleMqttException("Could not initialize MQTT: " + e.message)
-                            }
-                        }
-                    }
-                }
                 mqttOptions?.let {
                     val mqttMessage =
                         Mqtt5Publish.builder().topic(topic).payload(payload.toByteArray())
@@ -183,27 +160,13 @@ class MQTT5Service(
                         Mqtt5DisconnectException::class.java,
                         Consumer { disconnectException ->
                             val disconnect: Mqtt5Disconnect = disconnectException.mqttMessage
-                            mReady.set(true)
-                            listener?.handleMqttConnected()
+                            mReady.set(false)
+                            listener?.handleMqttDisconnected()
                             mqttOptions.let {
                                 Timber.e(
                                     "Failed to connect to: %s, exception: %s",
                                     it.brokerUrl,
                                     disconnect.reasonString
-                                )
-                                listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
-                            }
-                        }).`is`(
-                        Mqtt3DisconnectException::class.java,
-                        Consumer { disconnectException ->
-                            val disconnect: Mqtt3Disconnect = disconnectException.mqttMessage
-                            mReady.set(true)
-                            listener?.handleMqttConnected()
-                            mqttOptions.let {
-                                Timber.e(
-                                    "Failed to connect to: %s, exception: %s",
-                                    it.brokerUrl,
-                                    disconnect.toString()
                                 )
                                 listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
                             }
