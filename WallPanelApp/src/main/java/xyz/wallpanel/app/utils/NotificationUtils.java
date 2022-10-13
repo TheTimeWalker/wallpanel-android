@@ -51,7 +51,13 @@ public class NotificationUtils extends ContextWrapper {
         ANDROID_CHANNEL_NAME = getString(R.string.text_android_channel_name);
         notificationIntent = new Intent(context, BrowserActivityNative.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-        pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        int pendingFlags;
+        if (Build.VERSION.SDK_INT >= 23) {
+            pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        } else {
+            pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        }
+        pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, pendingFlags);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannels();
         }
