@@ -107,6 +107,7 @@
     <string name="title_enable_sensor_data">Enable Sensor Publishing</string>
     <string name="summary_enable_sensor_data">Publishes available device sensor data over MQTT</string>
     <string name="menu_title_help">Help</string>
+    <string name="menu_title_privacy_policy">Privacy Policy</string>
     <string name="menu_title_dashboard">Dashboard</string>
 
     <string name="title_hardware_acceleration">Hardware Acceleration</string>

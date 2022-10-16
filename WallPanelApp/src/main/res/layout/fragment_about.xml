@@ -157,6 +157,33 @@
         <View style="@style/DividerHorizontal"/>
 
         <LinearLayout
+            android:id="@+id/privacyPolicyButton"
+            style="@style/BorderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="24dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="8dp"
+                android:src="@drawable/ic_file_edit"
+                android:tint="@color/gray" />
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="8dp"
+                android:text="@string/menu_title_privacy_policy" />
+
+        </LinearLayout>
+
+        <View style="@style/DividerHorizontal" />
+
+        <LinearLayout
                 android:id="@+id/githubButton"
                 style="@style/BorderlessButtonStyle"
                 android:layout_width="match_parent"

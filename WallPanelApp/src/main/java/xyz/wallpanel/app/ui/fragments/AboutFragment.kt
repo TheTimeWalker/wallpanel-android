@@ -86,6 +86,7 @@ class AboutFragment : Fragment() {
         binding.rateApplicationButton.setOnClickListener { rate() }
         binding.githubButton.setOnClickListener { showGitHub() }
         binding.supportButton.setOnClickListener { showSupport() }
+        binding.privacyPolicyButton.setOnClickListener { showPrivacyPolicy() }
     }
 
     private fun rate() {
@@ -104,6 +105,10 @@ class AboutFragment : Fragment() {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_URL)))
     }
 
+    private fun showPrivacyPolicy() {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)))
+    }
+
     private fun feedback() {
         val email = Intent(Intent.ACTION_SENDTO)
         email.type = "text/email"
@@ -117,6 +122,7 @@ class AboutFragment : Fragment() {
         const val GOOGLE_PLAY_RATING = "xyz.wallpanel.app"
         const val GITHUB_URL = "https://github.com/TheTimeWalker/wallpanel-android"
         const val EMAIL_ADDRESS = "tony+wallpanel@stipanic.ch"
+        const val PRIVACY_POLICY_URL = "https://wallpanel.xyz/privacy-policy"
 
         fun newInstance(): AboutFragment {
             return AboutFragment()
