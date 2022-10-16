@@ -23,8 +23,8 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // TODO: Change to /TheTimeWalker/ before merging
-          editUrl: 'https://github.com/Daniel15/wallpanel-android/tree/master/website/',
+          editUrl:
+            'https://github.com/TheTimeWalker/wallpanel-android/tree/master/website/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
