@@ -54,6 +54,11 @@ const config = {
             label: 'Getting Started',
           },
           {
+            to: 'privacy-policy',
+            position: 'left',
+            label: 'Privacy Policy',
+          },
+          {
             href: 'https://github.com/TheTimeWalker/wallpanel-android',
             label: 'GitHub',
             position: 'right',
