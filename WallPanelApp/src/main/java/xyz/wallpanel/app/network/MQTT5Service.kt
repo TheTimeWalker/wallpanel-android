@@ -156,22 +156,18 @@ class MQTT5Service(
                     listener?.handleMqttConnected()
                 }
                 mqttBuilder.addDisconnectedListener { context: MqttClientDisconnectedContext? ->
-                    TypeSwitch.`when`(context!!.cause).`is`(
-                        Mqtt5DisconnectException::class.java,
-                        Consumer { disconnectException ->
-                            val disconnect: Mqtt5Disconnect = disconnectException.mqttMessage
-                            mReady.set(false)
-                            listener?.handleMqttDisconnected()
-                            mqttOptions.let {
-                                Timber.e(
-                                    "Failed to connect to: %s, exception: %s",
-                                    it.brokerUrl,
-                                    disconnect.reasonString
-                                )
-                                listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
-                            }
-                        })
+                    mReady.set(false)
+                    listener?.handleMqttDisconnected()
+                    mqttOptions.let {
+                        Timber.e(
+                            "Disconnected from: %s, exception: %s",
+                            it.brokerUrl,
+                            context?.cause?.message
+                        )
+                        listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
+                    }
                 }
+
                 mqtt5AsyncClient = mqttBuilder.useMqttVersion5().build().toAsync()
                 val clientConnect = mqtt5AsyncClient!!.connectWith()
                 clientConnect.cleanStart(false)
