@@ -234,10 +234,8 @@ class MQTT5Service(
                         )
                     }
                 } catch (e: NullPointerException) {
-                    e.printStackTrace()
                     Timber.e(e)
                 } catch (e: Mqtt5MessageException) {
-                    e.printStackTrace()
                     Timber.e(e)
                     listener?.handleMqttException("Exception while subscribing: " + e.message)
                 }

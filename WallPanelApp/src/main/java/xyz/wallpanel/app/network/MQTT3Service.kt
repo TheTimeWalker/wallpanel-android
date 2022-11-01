@@ -226,7 +226,6 @@ class MQTT3Service(
                     Timber.e(e)
                 } catch (e: Mqtt3MessageException) {
                     Timber.e("Error Sending Command: %s", e.message)
-                    e.printStackTrace()
                     listener?.handleMqttException("Couldn't send message to the MQTT broker for topic ${mqttMessage.topic}, check the MQTT client settings or your connection to the broker.")
                 }
             }
@@ -248,10 +247,8 @@ class MQTT3Service(
                         )
                     }
                 } catch (e: NullPointerException) {
-                    e.printStackTrace()
                     Timber.e(e)
                 } catch (e: Mqtt3MessageException) {
-                    e.printStackTrace()
                     Timber.e(e)
                     listener?.handleMqttException("Exception while subscribing: " + e.message)
                 }
