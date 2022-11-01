@@ -172,18 +172,16 @@ class MQTT3Service(
                     listener?.handleMqttConnected()
                 }
                 mqttBuilder.addDisconnectedListener { context: MqttClientDisconnectedContext? ->
-                    TypeSwitch.`when`(context!!.cause).`is`(
-                        Mqtt3DisconnectException::class.java,
-                        Consumer { disconnectException ->
-                            val disconnect: Mqtt3Disconnect = disconnectException.mqttMessage
-                            mReady.set(false)
-                            listener?.handleMqttDisconnected()
-                            mqttOptions.let {
-                                Timber.e("Failed to connect to: %s, exception: %s", it.brokerUrl, disconnect.toString())
-                                listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
-                            }
-                        })
-
+                    mReady.set(false)
+                    listener?.handleMqttDisconnected()
+                    mqttOptions.let {
+                        Timber.e(
+                            "Disconnected from: %s, exception: %s",
+                            it.brokerUrl,
+                            context?.cause?.message
+                        )
+                        listener?.handleMqttException("Error establishing MQTT connection to MQTT broker with address ${mqttOptions.brokerUrl}.")
+                    }
                 }
 
                 mqtt3AsyncClient = mqttBuilder.useMqttVersion3().build().toAsync()
@@ -254,6 +252,7 @@ class MQTT3Service(
                     Timber.e(e)
                 } catch (e: Mqtt3MessageException) {
                     e.printStackTrace()
+                    Timber.e(e)
                     listener?.handleMqttException("Exception while subscribing: " + e.message)
                 }
             }
