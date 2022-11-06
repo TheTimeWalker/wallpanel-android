@@ -27,6 +27,7 @@ import android.hardware.display.DisplayManager
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.*
+import android.os.PowerManager.WakeLock
 import android.view.Display
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
@@ -99,6 +100,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private val mJpegSockets = ArrayList<AsyncHttpServerResponse>()
     private var partialWakeLock: PowerManager.WakeLock? = null
+    private var screenWakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var keyguardLock: KeyguardManager.KeyguardLock? = null
     private var audioPlayer: MediaPlayer? = null
@@ -152,9 +154,15 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
         //noinspection deprecation
         partialWakeLock = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:partialWakeLock")
+            pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wallPanel:partialWakeLock")
         } else {
-            pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "wallPanel:partialWakeLock")
+            pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE, "wallPanel:partialWakeLock")
+        }
+
+        screenWakeLock = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "wallPanel:fullWakeLock")
+        } else {
+            pm.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "wallPanel:fullWakeLock")
         }
 
         // wifi lock
@@ -283,9 +291,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
     }
 
     private fun configurePowerOptions() {
-        if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
-            partialWakeLock!!.acquire(3000)
-        }
+        partialWakeLock?.let { acquireWakeLock(it) }
         if (!wifiLock!!.isHeld) {
             wifiLock!!.acquire()
         }
@@ -299,9 +305,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun stopPowerOptions() {
         Timber.i("Releasing Screen/WiFi Locks")
-        if (partialWakeLock != null && partialWakeLock!!.isHeld) {
-            partialWakeLock!!.release()
-        }
+        partialWakeLock?.let { releaseWakeLock(it) }
         if (wifiLock != null && wifiLock!!.isHeld) {
             wifiLock!!.release()
         }
@@ -519,6 +523,25 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
         }
     }
 
+    private fun acquireWakeLock(wakeLock: WakeLock, timeout: Long = -1) {
+        if (timeout >= 0) {
+            releaseWakeLock(wakeLock)
+        }
+        if (!wakeLock.isHeld) {
+            if (timeout >= 0) {
+                wakeLock.acquire(timeout)
+            } else {
+                wakeLock.acquire()
+            }
+        }
+    }
+
+    private fun releaseWakeLock(wakeLock: WakeLock){
+        if (wakeLock.isHeld){
+            wakeLock.release()
+        }
+    }
+
     // Attempt to restart camera and any optional camera options such as motion and streaming
     private fun restartCamera() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && configuration.cameraPermissionsShown) {
@@ -698,6 +721,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     // TODO temporarily wake screen
     private fun wakeScreen() {
+        screenWakeLock?.let { acquireWakeLock(it) }
         val intent = Intent(BROADCAST_SCREEN_WAKE)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
@@ -705,11 +729,9 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     @SuppressLint("WakelockTimeout")
     private fun wakeScreenOn(wakeTime: Long) {
-        if (partialWakeLock != null && !partialWakeLock!!.isHeld) {
-            partialWakeLock?.acquire(wakeTime)
-            wakeScreenHandler.postDelayed(clearWakeScreenRunnable, wakeTime)
-            sendWakeScreenOn()
-        }
+        wakeScreenHandler.postDelayed(clearWakeScreenRunnable, wakeTime)
+        screenWakeLock?.let { acquireWakeLock(it, wakeTime) }
+        sendWakeScreenOn()
     }
 
     private val clearWakeScreenRunnable = Runnable {
@@ -718,9 +740,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun wakeScreenOff() {
         wakeScreenHandler.removeCallbacks(clearWakeScreenRunnable)
-        if (partialWakeLock != null && partialWakeLock!!.isHeld) {
-            partialWakeLock!!.release()
-        }
+        screenWakeLock?.let { releaseWakeLock(it) }
         sendWakeScreenOff()
     }
 
@@ -964,6 +984,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun sendWakeScreenOn() {
         Timber.d("sendWakeScreen")
+        screenWakeLock?.let { acquireWakeLock(it) }
         val intent = Intent(BROADCAST_SCREEN_WAKE_ON)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
@@ -971,6 +992,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun sendWakeScreenOff() {
         Timber.d("sendWakeScreenOff")
+        screenWakeLock?.let { releaseWakeLock(it) }
         val intent = Intent(BROADCAST_SCREEN_WAKE_OFF)
         val bm = LocalBroadcastManager.getInstance(applicationContext)
         bm.sendBroadcast(intent)
