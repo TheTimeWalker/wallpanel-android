@@ -24,7 +24,7 @@ import xyz.wallpanel.app.databinding.DialogCodeSetBinding
 
 class SettingsCodeView : BaseView {
 
-    private var binding: DialogCodeSetBinding = DialogCodeSetBinding.bind(this)
+    private lateinit var binding: DialogCodeSetBinding
     internal var alarmListener: ViewListener? = null
 
     private val delayRunnable = object : Runnable {
@@ -54,6 +54,7 @@ class SettingsCodeView : BaseView {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+        binding = DialogCodeSetBinding.bind(this)
         binding.codeTitle.text = context.getString(R.string.dialog_enter_code)
     }
 
