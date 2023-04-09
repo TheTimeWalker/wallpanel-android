@@ -39,7 +39,8 @@ You can send a command using either HTTP or MQTT to have the device speak a mess
 Example format for the message topic and payload:
 
 ```json
-{"topic":"wallpanel/mywallpanel/command", "payload":"{'speak':'Hello!'}"}```
+{"topic":"wallpanel/mywallpanel/command", "payload":"{'speak':'Hello!'}"}
+```
 
 If you are using HTTP and sending text with special characters, such as those used in a Cyrillic or Spanish language, you would need to make sure your content type is set to utf-8, here is an example using curl to post a message in Spanish:
 
