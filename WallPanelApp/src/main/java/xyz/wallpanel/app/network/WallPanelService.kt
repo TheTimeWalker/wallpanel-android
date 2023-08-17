@@ -810,7 +810,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun getSensorDiscoveryDef(displayName: String, stateTopic: String, deviceClass: String?, unit: String?, sensorId: String): JSONObject {
         val discoveryDef = JSONObject()
-        discoveryDef.put("name", "${configuration.mqttDiscoveryDeviceName} ${displayName}")
+        discoveryDef.put("name", "${displayName}")
         discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
         if (unit != null) {
             discoveryDef.put("unit_of_measurement", unit)
@@ -828,7 +828,7 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun getBinarySensorDiscoveryDef(displayName: String, stateTopic: String, fieldName: String, deviceClass: String, sensorId: String): JSONObject {
         val discoveryDef = JSONObject()
-        discoveryDef.put("name", "${configuration.mqttDiscoveryDeviceName} ${displayName}")
+        discoveryDef.put("name", "${displayName}")
         discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
         discoveryDef.put("payload_on", true)
         discoveryDef.put("payload_off", false)
