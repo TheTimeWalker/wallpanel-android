@@ -47,6 +47,7 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
     private var mqttDiscovery: SwitchPreference? = null
     private var mqttDiscoveryTopic: EditTextPreference? = null
     private var mqttDiscoveryDeviceName: EditTextPreference? = null
+    private var mqttDiscoveryLegacyEntities: SwitchPreference? = null
 
     private val sslPreference: SwitchPreference by lazy {
         findPreference<SwitchPreference>(PREF_TLS_CONNECTION) as SwitchPreference
@@ -103,6 +104,7 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
         mqttDiscovery = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_discovery)) as SwitchPreference
         mqttDiscoveryTopic = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_discovery_topic)) as EditTextPreference
         mqttDiscoveryDeviceName = findPreference<EditTextPreference>(getString(R.string.key_setting_mqtt_discovery_name)) as EditTextPreference
+        mqttDiscoveryLegacyEntities = findPreference<SwitchPreference>(getString(R.string.key_setting_mqtt_discovery_legacy_entities)) as SwitchPreference
 
         mqttPassword?.setOnBindEditTextListener {editText ->
             // mask password in edit dialog
@@ -119,6 +121,7 @@ class MqttSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSharedP
         bindPreferenceSummaryToValue(mqttDiscovery!!)
         bindPreferenceSummaryToValue(mqttDiscoveryTopic!!)
         bindPreferenceSummaryToValue(mqttDiscoveryDeviceName!!)
+        bindPreferenceSummaryToValue(mqttDiscoveryLegacyEntities!!)
 
         mqttVersion?.setDefaultValue(configuration.mqttVersion)
         mqttVersion?.value = configuration.mqttVersion

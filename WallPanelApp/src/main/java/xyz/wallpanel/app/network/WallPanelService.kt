@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.media.MediaPlayer
@@ -810,7 +811,24 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun getSensorDiscoveryDef(displayName: String, stateTopic: String, deviceClass: String?, unit: String?, sensorId: String): JSONObject {
         val discoveryDef = JSONObject()
-        discoveryDef.put("name", "${displayName}")
+        if (configuration.mqttLegacyDiscoveryEntities) {
+            discoveryDef.put("name", "${configuration.mqttDiscoveryDeviceName} ${displayName}")
+        } else {
+            discoveryDef.put("name", displayName)
+        }
+        val originDef = JSONObject()
+        var version = ""
+        try {
+            val pInfo: PackageInfo =
+                applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0)
+            version = pInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        originDef.put("name", "WallPanel")
+        originDef.put("sw", version)
+        originDef.put("url", "https://wallpanel.xyz")
+        discoveryDef.put("origin", originDef)
         discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
         if (unit != null) {
             discoveryDef.put("unit_of_measurement", unit)
@@ -828,7 +846,24 @@ class WallPanelService : LifecycleService(), MQTTModule.MQTTListener {
 
     private fun getBinarySensorDiscoveryDef(displayName: String, stateTopic: String, fieldName: String, deviceClass: String, sensorId: String): JSONObject {
         val discoveryDef = JSONObject()
-        discoveryDef.put("name", "${displayName}")
+        if (configuration.mqttLegacyDiscoveryEntities) {
+            discoveryDef.put("name", "${configuration.mqttDiscoveryDeviceName} ${displayName}")
+        } else {
+            discoveryDef.put("name", displayName)
+        }
+        val originDef = JSONObject()
+        var version = ""
+        try {
+            val pInfo: PackageInfo =
+                applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0)
+            version = pInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        originDef.put("name", "WallPanel")
+        originDef.put("sw", version)
+        originDef.put("url", "https://wallpanel.xyz")
+        discoveryDef.put("origin", originDef)
         discoveryDef.put("state_topic", "${configuration.mqttBaseTopic}${stateTopic}")
         discoveryDef.put("payload_on", true)
         discoveryDef.put("payload_off", false)

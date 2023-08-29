@@ -242,6 +242,9 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
     val mqttDiscoveryDeviceName: String
         get() = getStringPref(R.string.key_setting_mqtt_discovery_name, R.string.default_setting_mqtt_home_assistant_name)
 
+    val mqttLegacyDiscoveryEntities: Boolean
+        get() = getBoolPref(R.string.key_setting_mqtt_discovery_legacy_entities, R.string.default_setting_mqtt_discovery_legacy_entities)
+
     val sensorsEnabled: Boolean
         get() = getBoolPref(R.string.key_setting_sensors_enabled,
                 R.string.default_setting_sensors_value)

@@ -73,6 +73,8 @@
     <string name="title_setting_mqtt_discovery">Enable MQTT Discovery</string>
     <string name="title_setting_mqtt_home_assistant_topic">Discovery Base Topic</string>
     <string name="title_setting_mqtt_home_assistant_name">Device Display Name</string>
+    <string name="title_setting_mqtt_discovery_legacy_entities">Use old entities naming</string>
+    <string name="summary_setting_mqtt_discovery_legacy_entities">Use old naming scheme for Home Assistant before 2023.08</string>
     <string name="default_setting_mqtt_home_assistant_name">My Wall Panel</string>
     <string name="title_setting_android_startonboot">Open On Device Boot</string>
     <string name="title_setting_android_browsertype">Specify Browser Engine</string>
