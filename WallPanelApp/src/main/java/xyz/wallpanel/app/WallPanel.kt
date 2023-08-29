@@ -69,7 +69,6 @@ class WallPanel : DaggerApplication() {
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
-                    .penaltyDeath()
                     .build()
             )
         }
