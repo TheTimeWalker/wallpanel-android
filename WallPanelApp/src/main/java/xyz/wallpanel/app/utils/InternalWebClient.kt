@@ -27,7 +27,10 @@ open class InternalWebClient(val resources: Resources, private val callback: Web
     private var currentUrl = ""
 
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        if (!currentUrl.equals(url, ignoreCase = true)){
+        if (currentUrl.equals(url, ignoreCase = true)) {
+            return false;
+        }
+        else if (!currentUrl.equals(url, ignoreCase = true)){
             currentUrl = url;
             view.loadUrl(currentUrl);
         }
