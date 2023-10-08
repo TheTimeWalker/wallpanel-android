@@ -31,6 +31,8 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import dagger.android.support.DaggerAppCompatActivity
+import timber.log.Timber
 import xyz.wallpanel.app.AppExceptionHandler
 import xyz.wallpanel.app.network.MQTTOptions
 import xyz.wallpanel.app.network.WallPanelService
@@ -44,12 +46,10 @@ import xyz.wallpanel.app.network.WallPanelService.Companion.BROADCAST_SCREEN_WAK
 import xyz.wallpanel.app.network.WallPanelService.Companion.BROADCAST_SERVICE_STARTED
 import xyz.wallpanel.app.network.WallPanelService.Companion.BROADCAST_TOAST_MESSAGE
 import xyz.wallpanel.app.persistence.Configuration
-import xyz.wallpanel.app.utils.BrowserUtils
 import xyz.wallpanel.app.utils.DialogUtils
 import xyz.wallpanel.app.utils.ScreenUtils
-import dagger.android.support.DaggerAppCompatActivity
-import timber.log.Timber
 import javax.inject.Inject
+
 
 abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
@@ -80,15 +80,8 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
             if (BROADCAST_ACTION_LOAD_URL == intent.action) {
                 val url = intent.getStringExtra(BROADCAST_ACTION_LOAD_URL)
                 url?.let {
-                    if (url.startsWith("intent:")) {
-                        val launchIntent = BrowserUtils().parseIntent(url)
-                        launchIntent?.let {
-                            startActivity(launchIntent)
-                        }
-                    } else {
-                        loadWebViewUrl(url)
-                        stopDisconnectTimer()
-                    }
+                    loadWebViewUrl(url)
+                    stopDisconnectTimer()
                 }
             } else if (BROADCAST_ACTION_JS_EXEC == intent.action) {
                 val js = intent.getStringExtra(BROADCAST_ACTION_JS_EXEC)

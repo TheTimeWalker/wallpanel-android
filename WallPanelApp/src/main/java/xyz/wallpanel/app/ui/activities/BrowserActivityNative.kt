@@ -17,11 +17,13 @@
 package xyz.wallpanel.app.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Browser
 import android.view.*
 import android.webkit.*
 import android.widget.Button
@@ -46,6 +48,7 @@ import xyz.wallpanel.app.utils.InternalWebClient
 import xyz.wallpanel.app.BuildConfig
 import xyz.wallpanel.app.R
 import timber.log.Timber
+import java.net.URISyntaxException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -185,7 +188,25 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
 
     override fun loadWebViewUrl(url: String) {
         Timber.d("loadUrl $url")
-        webView.loadUrl(url)
+        if (url.startsWith("intent:")) {
+            val launchIntent: Intent
+            try {
+                launchIntent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+            } catch (ex: URISyntaxException) {
+                Timber.e("Bad URI $url: $ex.message")
+                dialogUtils.showAlertDialog(webView.context, resources.getString(R.string.dialog_message_invalid_intent))
+                return
+            }
+            val selector = launchIntent.selector
+            if (selector != null) {
+                selector.addCategory(Intent.CATEGORY_BROWSABLE)
+                selector.setComponent(null)
+            }
+            launchIntent.putExtra(Browser.EXTRA_APPLICATION_ID, webView.context.packageName);
+            webView.context.startActivity(launchIntent)
+        } else {
+            webView.loadUrl(url)
+        }
     }
 
     override fun evaluateJavascript(js: String) {

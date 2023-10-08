@@ -20,6 +20,7 @@ import timber.log.Timber
 
 class BrowserUtils {
     /**
+     * DEPRECATED
      * This methods parses url's with intent strings
      * "intent:#Intent;launchFlags=0x10000000;component=com.amazon.avod/com.amazon.avod.client.activity.HomeScreenActivity;end"
      */
