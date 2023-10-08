@@ -53,7 +53,7 @@ class CustomWebView @JvmOverloads constructor(
         settings.databaseEnabled = true
         settings.saveFormData = true
         settings.javaScriptCanOpenWindowsAutomatically = true
-        settings.setAppCacheEnabled(true)
+        settings.cacheMode = WebSettings.LOAD_NO_CACHE
         settings.allowFileAccess = true
         settings.allowFileAccessFromFileURLs = true
         settings.allowContentAccess = true

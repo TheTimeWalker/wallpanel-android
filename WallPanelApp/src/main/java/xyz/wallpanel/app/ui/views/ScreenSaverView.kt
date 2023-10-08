@@ -245,7 +245,7 @@ class ScreenSaverView : RelativeLayout {
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.databaseEnabled = true
-        webSettings.setAppCacheEnabled(true)
+        webSettings.cacheMode = WebSettings.LOAD_NO_CACHE
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         if (!TextUtils.isEmpty(userAgent)) {
             webSettings.userAgentString = userAgent

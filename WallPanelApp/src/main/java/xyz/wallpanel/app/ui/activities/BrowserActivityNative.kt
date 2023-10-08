@@ -235,7 +235,7 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         webSettings?.databaseEnabled = true
         webSettings?.saveFormData = true
         webSettings?.javaScriptCanOpenWindowsAutomatically = true
-        webSettings?.setAppCacheEnabled(true)
+        webSettings?.cacheMode = WebSettings.LOAD_NO_CACHE
         webSettings?.allowFileAccess = true
         webSettings?.allowFileAccessFromFileURLs = true
         webSettings?.allowContentAccess = true
