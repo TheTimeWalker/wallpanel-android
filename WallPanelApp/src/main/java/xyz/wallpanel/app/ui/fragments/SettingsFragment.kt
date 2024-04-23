@@ -74,6 +74,8 @@ class SettingsFragment : BaseSettingsFragment() {
     private var aboutPreference: Preference? = null
     private var brightnessPreference: Preference? = null
     private var browserRefreshPreference: SwitchPreference? = null
+    private var browserBackPreference: SwitchPreference? = null
+    private var exitOnBackPreference: SwitchPreference? = null
 
     private var clockSaverPreference: SwitchPreference? = null
     private var inactivityPreference: ListPreference? = null
@@ -190,6 +192,8 @@ class SettingsFragment : BaseSettingsFragment() {
         openOnBootPreference = findPreference<SwitchPreference>(getString(R.string.key_setting_android_startonboot)) as SwitchPreference
         hardwareAcceleration = findPreference<SwitchPreference>(getString(R.string.key_hadware_accelerated_enabled)) as SwitchPreference
         browserRefreshPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_browser_refresh)) as SwitchPreference
+        browserBackPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_browser_back)) as SwitchPreference
+        exitOnBackPreference = findPreference<SwitchPreference>(getString(R.string.key_pref_exit_on_back)) as SwitchPreference
         clockSaverPreference = findPreference<SwitchPreference>(getString(R.string.key_screensaver)) as SwitchPreference
         inactivityPreference = findPreference<ListPreference>(PREF_SCREEN_INACTIVITY_TIME) as ListPreference
         dimPreference = findPreference<ListPreference>(PREF_SCREENSAVER_DIM_VALUE) as ListPreference

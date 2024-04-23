@@ -347,6 +347,19 @@ class BrowserActivityNative : BaseBrowserActivity(), LifecycleObserver, WebClien
         }
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (configuration.browserBack && webView.canGoBack()) {
+                webView.goBack()
+                return true
+            }
+            if (!configuration.exitOnBack) {
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     private fun configureWebChromeClient() {
         webView.webChromeClient = InternalWebChromeClient(resources = resources, callback = this)
     }

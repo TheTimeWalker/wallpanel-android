@@ -273,6 +273,18 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_pref_browser_refresh), value).apply()
         }
 
+    var browserBack: Boolean
+        get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_browser_back), true)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_pref_browser_back), value).apply()
+        }
+
+    var exitOnBack: Boolean
+        get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_exit_on_back), true)
+        set(value) {
+            sharedPreferences.edit().putBoolean(context.getString(R.string.key_pref_exit_on_back), value).apply()
+        }
+
     val cameraFPS: Float
         get() = try {
             getStringPref(R.string.key_setting_camera_fps, R.string.default_camera_fps).trim().toFloat()
