@@ -274,7 +274,7 @@ constructor(private val context: Context, private val sharedPreferences: SharedP
         }
 
     var browserBack: Boolean
-        get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_browser_back), true)
+        get() = this.sharedPreferences.getBoolean(context.getString(R.string.key_pref_browser_back), false)
         set(value) {
             sharedPreferences.edit().putBoolean(context.getString(R.string.key_pref_browser_back), value).apply()
         }
