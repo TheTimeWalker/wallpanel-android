@@ -1,3 +1,11 @@
+# ARCHIVED
+
+This project is now archived. As the maintainer of this project since 2022, I unfortunately didn't really live up to the standards to properly maintain this project. When taking over as maintainer, I was at the time motivated to work on it. However, in the coming years I have realized that with not having as much deep knowledge at native development, I wasn't able to work on it how I imagined to do. Additionally, I had more trouble really motivating myself, taking the necesssary free time and wrapping around developing this app. I then realized lately, that I personally haven't been using this app as extensively as I thought I would since I ended up only having one wall panel - which uses the Home Assistant companion app for this task. After ignoring issues and notifications all around, I've decided to archive this repository instead of disappointing additional people.
+
+If anybody else wants to step up on continuing development and maintaining this project, you can contact me in the e-mail address inside the app and we can organize the transfer of the project, transfer for Google Play app, its signing keys, domain, and everything in-between.
+
+Thank you!
+
 # WallPanel
 
 WallPanel is an Android application for Web Based Dashboards and Home Automation Platforms. You can either sideload the application to your Android device from the [release section](https://github.com/thetimewalker/wallpanel-android/releases) or install the application from [Google Play](https://play.google.com/store/apps/details?id=xyz.wallpanel.app).
