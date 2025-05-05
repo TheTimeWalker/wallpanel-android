@@ -9,7 +9,7 @@ MQTT can be used by the application to [publish application data, user presence,
 
 You will need your MQTT broker IP address and port number if different from the default.  There is an option to use SSL with the port 8883. Usually enter the IP address without http/https (192.168.1.1) to use a TCP connection to the broker.  You can also use http/https by entering the fully qualified url (https://192.168.1.1).
 
-The base topic `wallpanel/mywallpanel` allows the device to send and receive MQTT commands or messages.   The base topic should be unique to each device if you want the device to operate independently from other devices running the same application in your network.  If all devices have the same base topic, then sending a command will mean all devices receive the command.
+The base topic `wallpanel/mywallpanel/` allows the device to send and receive MQTT commands or messages, ensure you have an trailing `/` at the end of the topic.   The base topic should be unique to each device if you want the device to operate independently from other devices running the same application in your network.  If all devices have the same base topic, then sending a command will mean all devices receive the command. 
 
 If needed, add your MQTT username and password.  The client id is the unique identifier of this device with the MQTT broker.  It can be changed, but should be different from other applications on the same network.  
 
