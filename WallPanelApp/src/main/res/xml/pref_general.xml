@@ -52,6 +52,18 @@
             android:title="@string/pref_browser_refresh_title"/>
 
         <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_pref_browser_back"
+            android:summary="@string/pref_browser_back_summary"
+            android:title="@string/pref_browser_back_title"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_pref_exit_on_back"
+            android:summary="@string/pref_exit_on_back_summary"
+            android:title="@string/pref_exit_on_back_title"/>
+
+        <SwitchPreference
             android:defaultValue="true"
             android:key="pref_settings_refresh_on_disconnect"
             android:summary="Refreshes the dashboard on network disconnect."

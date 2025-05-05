@@ -131,6 +131,9 @@
     <string name="key_pref_browser_refresh">browser_refresh</string>
     <string name="default_browser_refresh">true</string>
 
+    <string name="key_pref_browser_back">browser_back</string>
+    <string name="key_pref_exit_on_back">exit_on_back</string>
+
     <string name="key_screensaver_inactivity_time">screensaver_inactivity_time</string>
 
     <string name="key_screensaver_dim_value">screensaver_dim_value</string>

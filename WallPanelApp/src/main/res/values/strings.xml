@@ -212,6 +212,10 @@
     <string name="toast_empty_url">Url is empty…</string>
     <string name="pref_browser_refresh_summary">When active, allows you to pull down on the browser window to refresh the page.</string>
     <string name="pref_browser_refresh_title">Browser Refresh</string>
+    <string name="pref_browser_back_summary">When active, allows you to go one page history back on back button.</string>
+    <string name="pref_browser_back_title">Browser Back</string>
+    <string name="pref_exit_on_back_summary">When active, allows you to exit on back button.</string>
+    <string name="pref_exit_on_back_title">Exit on Back Button</string>
     <string name="error_mqtt_exception">There was an error initializing the MQTT client, please check your settings.</string>
 
     <string name="preference_title_screen">Display Settings</string>
