@@ -74,6 +74,22 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     var displayProgress = true
     var zoomLevel = 1.0f
 
+    // handler for received data from service for screen operations
+    private val mWakeBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
+                stopDisconnectTimer()
+            } else if (BROADCAST_SCREEN_WAKE_ON == intent.action && !isFinishing) {
+                hasWakeScreen = true
+                resetScreenBrightness(false)
+                clearInactivityTimer()
+            } else if (BROADCAST_SCREEN_WAKE_OFF == intent.action && !isFinishing) {
+                hasWakeScreen = false
+                resetInactivityTimer()
+            }
+        }
+    }
+
     // handler for received data from service
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -115,17 +131,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                     resetInactivityTimer()
                     resetScreenBrightness(false)
                 }
-            } else if (BROADCAST_SCREEN_WAKE == intent.action && !isFinishing) {
-                stopDisconnectTimer()
-            } else if (BROADCAST_SCREEN_WAKE_ON == intent.action && !isFinishing) {
-                hasWakeScreen = true
-                resetScreenBrightness(false)
-                clearInactivityTimer()
-                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            } else if (BROADCAST_SCREEN_WAKE_OFF == intent.action && !isFinishing) {
-                hasWakeScreen = false
-                resetInactivityTimer()
-                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else if (BROADCAST_ACTION_RELOAD_PAGE == intent.action && !isFinishing) {
                 hideScreenSaver()
             } else if (BROADCAST_SERVICE_STARTED == intent.action && !isFinishing) {
@@ -143,7 +148,15 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
 
         window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD)
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
-        window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+
+        setupWakeBroadcastReceiver()
+
+        val filter = IntentFilter()
+        filter.addAction(BROADCAST_SCREEN_WAKE)
+        filter.addAction(BROADCAST_SCREEN_WAKE_ON)
+        filter.addAction(BROADCAST_SCREEN_WAKE_OFF)
+        val bm = LocalBroadcastManager.getInstance(this)
+        bm.registerReceiver(mWakeBroadcastReceiver, filter)
 
         decorView = window.decorView
 
@@ -166,9 +179,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         filter.addAction(BROADCAST_CLEAR_ALERT_MESSAGE)
         filter.addAction(BROADCAST_ALERT_MESSAGE)
         filter.addAction(BROADCAST_TOAST_MESSAGE)
-        filter.addAction(BROADCAST_SCREEN_WAKE)
-        filter.addAction(BROADCAST_SCREEN_WAKE_ON)
-        filter.addAction(BROADCAST_SCREEN_WAKE_OFF)
         filter.addAction(BROADCAST_SERVICE_STARTED)
         val bm = LocalBroadcastManager.getInstance(this)
         bm.registerReceiver(mBroadcastReceiver, filter)
@@ -189,13 +199,7 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
             )
         }
-        if (configuration.appPreventSleep) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            decorView?.keepScreenOn = true
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            decorView?.keepScreenOn = false
-        }
+        decorView?.keepScreenOn = configuration.appPreventSleep
         wallPanelService = Intent(this, WallPanelService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(wallPanelService)
@@ -209,7 +213,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         super.onDestroy()
         inactivityHandler.removeCallbacks(inactivityCallback)
         window.clearFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     override fun onUserInteraction() {
@@ -226,6 +229,15 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
         if (hasWakeScreen.not()) {
             resetInactivityTimer()
         }
+    }
+
+    fun setupWakeBroadcastReceiver(){
+        val filter = IntentFilter()
+        filter.addAction(BROADCAST_SCREEN_WAKE)
+        filter.addAction(BROADCAST_SCREEN_WAKE_ON)
+        filter.addAction(BROADCAST_SCREEN_WAKE_OFF)
+        val bm = LocalBroadcastManager.getInstance(this)
+        bm.registerReceiver(mWakeBroadcastReceiver, filter)
     }
 
     fun setDarkTheme() {
@@ -308,7 +320,6 @@ abstract class BaseBrowserActivity : DaggerAppCompatActivity() {
     open fun hideScreenSaver() {
         Timber.d("hideScreenSaver")
         val isScreenSaver = dialogUtils.hideScreenSaverDialog()
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         if (isScreenSaver) {
             resetScreenBrightness(false)
         }
